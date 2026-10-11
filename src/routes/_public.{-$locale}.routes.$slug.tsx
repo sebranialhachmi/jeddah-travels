@@ -22,7 +22,8 @@ const opts = (slug: string) =>
 export const Route = createFileRoute("/_public/{-$locale}/routes/$slug")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(opts(params.slug)),
   head: ({ loaderData, params }) => {
-    if (!loaderData) return { meta: [{ title: "Not found" }, { name: "robots", content: "noindex" }] };
+    if (!loaderData)
+      return { meta: [{ title: "Not found" }, { name: "robots", content: "noindex" }] };
     const p: any = loaderData.page;
     const head = buildCmsHead(p);
     const locale = params.locale ?? "ar";

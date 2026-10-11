@@ -41,7 +41,10 @@ export function HeadInjector() {
         if (document.head.querySelector(`meta[name="${name}"]`)) return;
         const el = document.createElement("meta");
         el.setAttribute("name", name);
-        el.setAttribute("content", content.includes("<") ? (content.match(/content=["']([^"']+)["']/i)?.[1] ?? "") : content);
+        el.setAttribute(
+          "content",
+          content.includes("<") ? (content.match(/content=["']([^"']+)["']/i)?.[1] ?? "") : content,
+        );
         el.setAttribute("data-injected", "settings");
         document.head.appendChild(el);
         injected.push(el);
@@ -68,7 +71,12 @@ export function HeadInjector() {
             } else {
               // Meta tags from head_meta_custom are already server-rendered.
               const mName = src.getAttribute("name");
-              if (src.tagName === "META" && mName && document.head.querySelector(`meta[name="${mName}"]`)) return;
+              if (
+                src.tagName === "META" &&
+                mName &&
+                document.head.querySelector(`meta[name="${mName}"]`)
+              )
+                return;
               src.setAttribute("data-injected", "settings");
               document.head.appendChild(src);
               injected.push(src);

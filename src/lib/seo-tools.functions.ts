@@ -8,11 +8,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { SITE } from "@/lib/site-info";
 
 function sbPublic() {
-  return createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-  );
+  return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+  });
 }
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -41,7 +39,9 @@ export const runSeoAudit = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data: pages } = await supabase
       .from("cms_pages")
-      .select("id,slug,page_type,title_en,title_ar,meta_title,meta_description,og_image_url,canonical_url,schema_type,published,status")
+      .select(
+        "id,slug,page_type,title_en,title_ar,meta_title,meta_description,og_image_url,canonical_url,schema_type,published,status",
+      )
       .is("deleted_at", null);
     const { data: posts } = await supabase
       .from("blog_posts")
@@ -60,7 +60,13 @@ export const runSeoAudit = createServerFn({ method: "GET" })
     const titleMap = new Map<string, Row[]>();
     const descMap = new Map<string, Row[]>();
 
-    const consider = (r: Row, title: string | null | undefined, desc: string | null | undefined, image: string | null | undefined, slug: string) => {
+    const consider = (
+      r: Row,
+      title: string | null | undefined,
+      desc: string | null | undefined,
+      image: string | null | undefined,
+      slug: string,
+    ) => {
       const t = (title ?? "").trim();
       const d = (desc ?? "").trim();
       if (!t) missingTitle.push(r);
@@ -69,31 +75,56 @@ export const runSeoAudit = createServerFn({ method: "GET" })
       else if (d.length < 60) shortDescription.push(r);
       if (!image) missingImage.push(r);
       if (!isValidSlug(slug)) invalidSlug.push(r);
-      if (t) { const k = t.toLowerCase(); titleMap.set(k, [...(titleMap.get(k) ?? []), r]); }
-      if (d) { const k = d.toLowerCase(); descMap.set(k, [...(descMap.get(k) ?? []), r]); }
+      if (t) {
+        const k = t.toLowerCase();
+        titleMap.set(k, [...(titleMap.get(k) ?? []), r]);
+      }
+      if (d) {
+        const k = d.toLowerCase();
+        descMap.set(k, [...(descMap.get(k) ?? []), r]);
+      }
     };
 
     for (const p of pages ?? []) {
-      const r: Row = { entity: "cms_page", id: p.id, slug: p.slug, label: `${p.page_type}: ${p.title_en || p.slug}` };
+      const r: Row = {
+        entity: "cms_page",
+        id: p.id,
+        slug: p.slug,
+        label: `${p.page_type}: ${p.title_en || p.slug}`,
+      };
       consider(r, p.meta_title || p.title_en, p.meta_description, p.og_image_url, p.slug);
     }
     for (const p of posts ?? []) {
-      const r: Row = { entity: "blog_post", id: p.id, slug: p.slug, label: `blog: ${p.title_en || p.slug}` };
+      const r: Row = {
+        entity: "blog_post",
+        id: p.id,
+        slug: p.slug,
+        label: `blog: ${p.title_en || p.slug}`,
+      };
       consider(r, p.meta_title || p.title_en, p.meta_description, p.og_image_url, p.slug);
     }
     for (const [k, rows] of titleMap) if (rows.length > 1) duplicateTitles.push({ title: k, rows });
-    for (const [k, rows] of descMap) if (rows.length > 1) duplicateDescriptions.push({ description: k, rows });
+    for (const [k, rows] of descMap)
+      if (rows.length > 1) duplicateDescriptions.push({ description: k, rows });
 
     // Broken internal link detection: scan body_en/body_ar for internal links (/en/… /ar/… or /path)
     // and verify targets exist in cms_pages/blog_posts.
-    const { data: bodies } = await supabase.from("cms_pages").select("id,slug,body_en,body_ar").is("deleted_at", null);
+    const { data: bodies } = await supabase
+      .from("cms_pages")
+      .select("id,slug,body_en,body_ar")
+      .is("deleted_at", null);
     const knownPaths = new Set<string>();
     for (const p of pages ?? []) {
       const prefix =
-        p.page_type === "service" ? "services" :
-        p.page_type === "city" ? "cities" :
-        p.page_type === "airport" ? "airports" :
-        p.page_type === "route_page" ? "routes" : "p";
+        p.page_type === "service"
+          ? "services"
+          : p.page_type === "city"
+            ? "cities"
+            : p.page_type === "airport"
+              ? "airports"
+              : p.page_type === "route_page"
+                ? "routes"
+                : "p";
       knownPaths.add(`/${prefix}/${p.slug}`);
     }
     for (const p of posts ?? []) knownPaths.add(`/blog/${p.slug}`);
@@ -106,7 +137,24 @@ export const runSeoAudit = createServerFn({ method: "GET" })
         const href = m[1].replace(/^\/(en|ar)/, "");
         if (!href.startsWith("/")) continue;
         if (/\.(png|jpg|jpeg|svg|webp|pdf|xml|ico)$/i.test(href)) continue;
-        if (["/", "/about", "/services", "/fleet", "/blog", "/contact", "/pricing", "/faq", "/airport-transfers", "/privacy", "/terms", "/refund", "/cancellation"].includes(href)) continue;
+        if (
+          [
+            "/",
+            "/about",
+            "/services",
+            "/fleet",
+            "/blog",
+            "/contact",
+            "/pricing",
+            "/faq",
+            "/airport-transfers",
+            "/privacy",
+            "/terms",
+            "/refund",
+            "/cancellation",
+          ].includes(href)
+        )
+          continue;
         if (!knownPaths.has(href)) brokenLinks.push({ pageSlug: b.slug, href });
       }
     }
@@ -125,8 +173,15 @@ export const runSeoAudit = createServerFn({ method: "GET" })
         duplicateDescriptions: duplicateDescriptions.length,
         brokenLinks: brokenLinks.length,
       },
-      missingTitle, missingDescription, shortDescription, longTitle,
-      missingImage, invalidSlug, duplicateTitles, duplicateDescriptions, brokenLinks,
+      missingTitle,
+      missingDescription,
+      shortDescription,
+      longTitle,
+      missingImage,
+      invalidSlug,
+      duplicateTitles,
+      duplicateDescriptions,
+      brokenLinks,
     };
   });
 
@@ -152,10 +207,15 @@ export const generateSeoPage = createServerFn({ method: "POST" })
     if (!isValidSlug(data.slug)) throw new Error("Invalid slug format");
 
     const prefix =
-      data.type === "service" ? "services" :
-      data.type === "city" ? "cities" :
-      data.type === "airport" ? "airports" :
-      data.type === "route_page" ? "routes" : "fleet";
+      data.type === "service"
+        ? "services"
+        : data.type === "city"
+          ? "cities"
+          : data.type === "airport"
+            ? "airports"
+            : data.type === "route_page"
+              ? "routes"
+              : "fleet";
     const url = `/${prefix}/${data.slug}`;
 
     if (data.type === "vehicle") {
@@ -164,18 +224,26 @@ export const generateSeoPage = createServerFn({ method: "POST" })
     }
 
     const cmsType =
-      data.type === "vehicle" ? "service" :
-      (data.type as "service" | "city" | "airport" | "route_page");
+      data.type === "vehicle"
+        ? "service"
+        : (data.type as "service" | "city" | "airport" | "route_page");
 
     const schemaType =
-      data.type === "service" ? "Service" :
-      data.type === "city" ? "Place" :
-      data.type === "airport" ? "Airport" :
-      data.type === "route_page" ? "Service" :
-      "Vehicle";
+      data.type === "service"
+        ? "Service"
+        : data.type === "city"
+          ? "Place"
+          : data.type === "airport"
+            ? "Airport"
+            : data.type === "route_page"
+              ? "Service"
+              : "Vehicle";
 
     const meta_title = `${data.title_en} | ${SITE.brand.en}`.slice(0, 70);
-    const meta_description = (data.subtitle_en || `Book premium ${data.title_en.toLowerCase()} in Jeddah with ${SITE.brand.en}. 24/7 chauffeur service, professional drivers, luxury fleet.`).slice(0, 160);
+    const meta_description = (
+      data.subtitle_en ||
+      `Book premium ${data.title_en.toLowerCase()} in Jeddah with ${SITE.brand.en}. 24/7 chauffeur service, professional drivers, luxury fleet.`
+    ).slice(0, 160);
 
     const payload = {
       slug: data.slug,
@@ -213,50 +281,84 @@ export const generateSeoPage = createServerFn({ method: "POST" })
 
 // ----- Bulk programmatic generation (combinations) -----
 const BulkSchema = z.object({
-  combinations: z.array(z.object({
-    type: z.enum(["city", "airport", "service", "route_page", "vehicle"]),
-    slug: z.string(),
-    title_en: z.string(),
-    title_ar: z.string(),
-    subtitle_en: z.string().optional().nullable(),
-    subtitle_ar: z.string().optional().nullable(),
-  })).max(200),
+  combinations: z
+    .array(
+      z.object({
+        type: z.enum(["city", "airport", "service", "route_page", "vehicle"]),
+        slug: z.string(),
+        title_en: z.string(),
+        title_ar: z.string(),
+        subtitle_en: z.string().optional().nullable(),
+        subtitle_ar: z.string().optional().nullable(),
+      }),
+    )
+    .max(200),
 });
 export const bulkGenerateSeoPages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => BulkSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    let created = 0; let skipped = 0; const errors: string[] = [];
+    let created = 0;
+    let skipped = 0;
+    const errors: string[] = [];
     for (const c of data.combinations) {
-      if (!isValidSlug(c.slug)) { skipped++; errors.push(`invalid slug: ${c.slug}`); continue; }
+      if (!isValidSlug(c.slug)) {
+        skipped++;
+        errors.push(`invalid slug: ${c.slug}`);
+        continue;
+      }
       const prefix =
-        c.type === "service" ? "services" :
-        c.type === "city" ? "cities" :
-        c.type === "airport" ? "airports" :
-        c.type === "route_page" ? "routes" : "fleet";
+        c.type === "service"
+          ? "services"
+          : c.type === "city"
+            ? "cities"
+            : c.type === "airport"
+              ? "airports"
+              : c.type === "route_page"
+                ? "routes"
+                : "fleet";
       const cmsType = c.type === "vehicle" ? "service" : c.type;
       const schemaType =
-        c.type === "service" ? "Service" :
-        c.type === "city" ? "Place" :
-        c.type === "airport" ? "Airport" :
-        c.type === "route_page" ? "Service" : "Vehicle";
+        c.type === "service"
+          ? "Service"
+          : c.type === "city"
+            ? "Place"
+            : c.type === "airport"
+              ? "Airport"
+              : c.type === "route_page"
+                ? "Service"
+                : "Vehicle";
       const meta_title = `${c.title_en} | ${SITE.brand.en}`.slice(0, 70);
-      const meta_description = (c.subtitle_en || `Premium ${c.title_en.toLowerCase()} with ${SITE.brand.en} — luxury chauffeur service in Jeddah.`).slice(0, 160);
-      const { error } = await supabase.from("cms_pages").upsert({
-        slug: c.slug,
-        page_type: cmsType as any,
-        title_en: c.title_en, title_ar: c.title_ar,
-        subtitle_en: c.subtitle_en ?? null, subtitle_ar: c.subtitle_ar ?? null,
-        meta_title, meta_description,
-        og_title: c.title_en, og_description: meta_description,
-        twitter_card: "summary_large_image",
-        canonical_url: `/${prefix}/${c.slug}`,
-        robots: "index,follow", schema_type: schemaType,
-        status: "draft", published: false,
-      } as any, { onConflict: "slug" });
-      if (error) { skipped++; errors.push(`${c.slug}: ${error.message}`); }
-      else created++;
+      const meta_description = (
+        c.subtitle_en ||
+        `Premium ${c.title_en.toLowerCase()} with ${SITE.brand.en} — luxury chauffeur service in Jeddah.`
+      ).slice(0, 160);
+      const { error } = await supabase.from("cms_pages").upsert(
+        {
+          slug: c.slug,
+          page_type: cmsType as any,
+          title_en: c.title_en,
+          title_ar: c.title_ar,
+          subtitle_en: c.subtitle_en ?? null,
+          subtitle_ar: c.subtitle_ar ?? null,
+          meta_title,
+          meta_description,
+          og_title: c.title_en,
+          og_description: meta_description,
+          twitter_card: "summary_large_image",
+          canonical_url: `/${prefix}/${c.slug}`,
+          robots: "index,follow",
+          schema_type: schemaType,
+          status: "draft",
+          published: false,
+        } as any,
+        { onConflict: "slug" },
+      );
+      if (error) {
+        skipped++;
+        errors.push(`${c.slug}: ${error.message}`);
+      } else created++;
     }
     return { created, skipped, errors };
   });
@@ -266,7 +368,8 @@ export const getInternalLinks = createServerFn({ method: "GET" })
   .inputValidator((input: { type?: string; limit?: number } | undefined) => input ?? {})
   .handler(async ({ data }) => {
     const sb = sbPublic();
-    let q = sb.from("cms_pages")
+    let q = sb
+      .from("cms_pages")
       .select("slug,page_type,title_en,title_ar")
       .eq("published", true)
       .order("sort_order")

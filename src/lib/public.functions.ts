@@ -5,11 +5,9 @@ import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
 function serverPublic() {
-  return createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-  );
+  return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+  });
 }
 
 export const listCmsPages = createServerFn({ method: "GET" })
@@ -27,7 +25,12 @@ export const getCmsPage = createServerFn({ method: "GET" })
   .inputValidator((input: { slug: string }) => input)
   .handler(async ({ data }) => {
     const sb = serverPublic();
-    const { data: row } = await sb.from("cms_pages").select("*").eq("slug", data.slug).eq("published", true).maybeSingle();
+    const { data: row } = await sb
+      .from("cms_pages")
+      .select("*")
+      .eq("slug", data.slug)
+      .eq("published", true)
+      .maybeSingle();
     return row;
   });
 
@@ -78,7 +81,9 @@ export const listBlogPosts = createServerFn({ method: "GET" }).handler(async () 
   const sb = serverPublic();
   const { data } = await sb
     .from("blog_posts")
-    .select("id,slug,title_ar,title_en,excerpt_ar,excerpt_en,cover_url,tags,published_at,reading_time_min,featured,category_id")
+    .select(
+      "id,slug,title_ar,title_en,excerpt_ar,excerpt_en,cover_url,tags,published_at,reading_time_min,featured,category_id",
+    )
     .eq("published", true)
     .order("published_at", { ascending: false });
   return data ?? [];
@@ -88,7 +93,12 @@ export const getBlogPost = createServerFn({ method: "GET" })
   .inputValidator((input: { slug: string }) => input)
   .handler(async ({ data }) => {
     const sb = serverPublic();
-    const { data: row } = await sb.from("blog_posts").select("*").eq("slug", data.slug).eq("published", true).maybeSingle();
+    const { data: row } = await sb
+      .from("blog_posts")
+      .select("*")
+      .eq("slug", data.slug)
+      .eq("published", true)
+      .maybeSingle();
     return row;
   });
 
@@ -100,7 +110,11 @@ export const listFaqs = createServerFn({ method: "GET" }).handler(async () => {
 
 export const listTestimonials = createServerFn({ method: "GET" }).handler(async () => {
   const sb = serverPublic();
-  const { data } = await sb.from("testimonials").select("*").eq("published", true).order("sort_order");
+  const { data } = await sb
+    .from("testimonials")
+    .select("*")
+    .eq("published", true)
+    .order("sort_order");
   return data ?? [];
 });
 
@@ -122,14 +136,17 @@ export const listHeroSlides = createServerFn({ method: "GET" }).handler(async ()
 
 export const listHomepageSections = createServerFn({ method: "GET" }).handler(async () => {
   const sb = serverPublic();
-  const { data } = await sb.from("homepage_sections").select("*").eq("enabled", true).order("sort_order");
+  const { data } = await sb
+    .from("homepage_sections")
+    .select("*")
+    .eq("enabled", true)
+    .order("sort_order");
   return data ?? [];
 });
 
 export const listPromotions = createServerFn({ method: "GET" }).handler(async () => {
   const sb = serverPublic();
-  const { data } = await sb
-    .from("promotions").select("*").eq("active", true).order("sort_order");
+  const { data } = await sb.from("promotions").select("*").eq("active", true).order("sort_order");
   return data ?? [];
 });
 
@@ -145,7 +162,9 @@ export const listAnnouncements = createServerFn({ method: "GET" }).handler(async
   const sb = serverPublic();
   const { data } = await sb
     .from("coupons")
-    .select("id,code,title_ar,title_en,description_ar,description_en,cta_text_ar,cta_text_en,cta_url,bg_color,text_color,icon,priority,target_pages,show_once,dismissible,valid_until")
+    .select(
+      "id,code,title_ar,title_en,description_ar,description_en,cta_text_ar,cta_text_en,cta_url,bg_color,text_color,icon,priority,target_pages,show_once,dismissible,valid_until",
+    )
     .eq("is_announcement", true)
     .eq("is_active", true)
     .order("priority", { ascending: false })
@@ -210,7 +229,9 @@ export const submitBookingRequest = createServerFn({ method: "POST" })
       data.luggage != null ? `Luggage: ${data.luggage}` : null,
       data.vehicle ? `Vehicle: ${data.vehicle}` : null,
       data.notes ? `Notes: ${data.notes}` : null,
-    ].filter(Boolean).join("\n");
+    ]
+      .filter(Boolean)
+      .join("\n");
     const message = `${summary}\n\n[booking_payload]${JSON.stringify(data)}[/booking_payload]`;
     const { error } = await sb.from("contact_submissions").insert({
       name: data.name,

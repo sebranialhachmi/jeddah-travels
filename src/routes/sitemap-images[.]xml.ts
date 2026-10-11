@@ -8,28 +8,34 @@ export const Route = createFileRoute("/sitemap-images.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const sb = createClient(
-          process.env.SUPABASE_URL!,
-          process.env.SUPABASE_PUBLISHABLE_KEY!,
-          { auth: { persistSession: false, autoRefreshToken: false } },
-        );
+        const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+          auth: { persistSession: false, autoRefreshToken: false },
+        });
         const entries: { loc: string; images: { url: string; caption?: string }[] }[] = [];
         try {
           const [{ data: pages }, { data: posts }] = await Promise.all([
-            sb.from("cms_pages")
+            sb
+              .from("cms_pages")
               .select("slug,page_type,title_en,og_image_url,featured_image_url,gallery")
               .eq("published", true),
-            sb.from("blog_posts")
-              .select("slug,title_en,og_image_url")
-              .eq("published", true),
+            sb.from("blog_posts").select("slug,title_en,og_image_url").eq("published", true),
           ]);
           const prefixOf = (t: string) =>
-            t === "service" ? "services" :
-            t === "city" ? "cities" :
-            t === "airport" ? "airports" :
-            t === "route_page" ? "routes" : "p";
+            t === "service"
+              ? "services"
+              : t === "city"
+                ? "cities"
+                : t === "airport"
+                  ? "airports"
+                  : t === "route_page"
+                    ? "routes"
+                    : "p";
           const seen = new Set<string>();
-          const pushImg = (arr: { url: string; caption?: string }[], url: string, caption?: string) => {
+          const pushImg = (
+            arr: { url: string; caption?: string }[],
+            url: string,
+            caption?: string,
+          ) => {
             const k = url;
             if (!k || seen.has(k)) return;
             seen.add(k);
@@ -38,13 +44,15 @@ export const Route = createFileRoute("/sitemap-images.xml")({
           for (const p of pages ?? []) {
             const images: { url: string; caption?: string }[] = [];
             seen.clear();
-            if ((p as any).featured_image_url) pushImg(images, (p as any).featured_image_url, p.title_en);
+            if ((p as any).featured_image_url)
+              pushImg(images, (p as any).featured_image_url, p.title_en);
             if ((p as any).og_image_url) pushImg(images, (p as any).og_image_url, p.title_en);
             const gallery = (p as any).gallery;
             if (Array.isArray(gallery)) {
               for (const g of gallery.slice(0, 20)) {
                 if (typeof g === "string") pushImg(images, g);
-                else if (g && typeof g === "object" && "url" in g) pushImg(images, String((g as any).url), (g as any).caption);
+                else if (g && typeof g === "object" && "url" in g)
+                  pushImg(images, String((g as any).url), (g as any).caption);
               }
             }
             if (images.length) {
@@ -64,11 +72,19 @@ export const Route = createFileRoute("/sitemap-images.xml")({
         } catch {
           /* fall through */
         }
-        const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        const esc = (s: string) =>
+          s
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
         const urls = entries.map((e) => {
-          const imgs = e.images.map((i) =>
-            `    <image:image><image:loc>${esc(i.url)}</image:loc>${i.caption ? `<image:caption>${esc(i.caption)}</image:caption>` : ""}</image:image>`
-          ).join("\n");
+          const imgs = e.images
+            .map(
+              (i) =>
+                `    <image:image><image:loc>${esc(i.url)}</image:loc>${i.caption ? `<image:caption>${esc(i.caption)}</image:caption>` : ""}</image:image>`,
+            )
+            .join("\n");
           return `  <url>\n    <loc>${esc(SITE.url + e.loc)}</loc>\n${imgs}\n  </url>`;
         });
         const xml = [

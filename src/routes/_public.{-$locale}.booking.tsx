@@ -14,9 +14,7 @@ export const Route = createFileRoute("/_public/{-$locale}/booking")({
   head: ({ params }) => {
     const locale = params.locale ?? "en";
     const ar = locale === "ar";
-    const title = ar
-      ? `احجز رحلتك — ${SITE.brand.ar}`
-      : `Book Your Ride — ${SITE.brand.en}`;
+    const title = ar ? `احجز رحلتك — ${SITE.brand.ar}` : `Book Your Ride — ${SITE.brand.en}`;
     const desc = ar
       ? "احجز تاكسي فاخر خلال دقيقة: مطار جدة، مكة، المدينة. تأكيد سريع عبر واتساب."
       : "Book a premium chauffeur in under a minute — Jeddah Airport, Makkah & Madinah. Instant WhatsApp confirmation.";
@@ -76,14 +74,24 @@ function BookingPage() {
 
   return (
     <section className="container-tight py-16 md:py-24">
-      <nav aria-label={ar ? "مسار التنقل" : "Breadcrumb"} className="text-sm text-muted-foreground mb-4">
-        <a href={withLocale(locale, "/")} className="hover:text-foreground">{ar ? "الرئيسية" : "Home"}</a>
+      <nav
+        aria-label={ar ? "مسار التنقل" : "Breadcrumb"}
+        className="text-sm text-muted-foreground mb-4"
+      >
+        <a href={withLocale(locale, "/")} className="hover:text-foreground">
+          {ar ? "الرئيسية" : "Home"}
+        </a>
         <span className="mx-2">/</span>
-        <span aria-current="page" className="text-foreground">{ar ? "احجز الآن" : "Book now"}</span>
+        <span aria-current="page" className="text-foreground">
+          {ar ? "احجز الآن" : "Book now"}
+        </span>
       </nav>
 
       <div className="max-w-3xl space-y-5 mb-10">
-        <span className="eyebrow"><span className="h-px w-8 bg-gold" />{ar ? "احجز رحلتك" : "Book your ride"}</span>
+        <span className="eyebrow">
+          <span className="h-px w-8 bg-gold" />
+          {ar ? "احجز رحلتك" : "Book your ride"}
+        </span>
         <h1 className="font-display text-4xl md:text-5xl leading-tight text-balance">
           {ar ? "احجز خلال دقيقة — تأكيد فوري." : "Book in under a minute — instant confirmation."}
         </h1>
@@ -95,7 +103,8 @@ function BookingPage() {
         <div className="flex flex-wrap gap-3">
           <Button asChild size="lg" className="rounded-full">
             <a href={waLink(waPrefill)} target="_blank" rel="noopener">
-              <MessageCircle className="h-5 w-5 me-2" /> {ar ? "احجز عبر واتساب" : "Book on WhatsApp"}
+              <MessageCircle className="h-5 w-5 me-2" />{" "}
+              {ar ? "احجز عبر واتساب" : "Book on WhatsApp"}
             </a>
           </Button>
           <Button asChild size="lg" variant="outline" className="rounded-full">
@@ -121,11 +130,25 @@ function BookingPage() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="pickup">{ar ? "نقطة الانطلاق" : "Pickup location"} *</Label>
-          <Input id="pickup" name="pickup" required minLength={2} maxLength={300} placeholder={ar ? "مثال: مطار الملك عبدالعزيز" : "e.g. King Abdulaziz Airport"} />
+          <Input
+            id="pickup"
+            name="pickup"
+            required
+            minLength={2}
+            maxLength={300}
+            placeholder={ar ? "مثال: مطار الملك عبدالعزيز" : "e.g. King Abdulaziz Airport"}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="dropoff">{ar ? "الوجهة" : "Dropoff location"} *</Label>
-          <Input id="dropoff" name="dropoff" required minLength={2} maxLength={300} placeholder={ar ? "مثال: مكة المكرمة" : "e.g. Makkah"} />
+          <Input
+            id="dropoff"
+            name="dropoff"
+            required
+            minLength={2}
+            maxLength={300}
+            placeholder={ar ? "مثال: مكة المكرمة" : "e.g. Makkah"}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="pickup_at">{ar ? "الوقت المفضل" : "Preferred pickup time"}</Label>
@@ -147,7 +170,14 @@ function BookingPage() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="passengers">{ar ? "عدد الركاب" : "Passengers"}</Label>
-          <Input id="passengers" name="passengers" type="number" min={1} max={60} defaultValue={1} />
+          <Input
+            id="passengers"
+            name="passengers"
+            type="number"
+            min={1}
+            max={60}
+            defaultValue={1}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="luggage">{ar ? "عدد الحقائب" : "Luggage"}</Label>
@@ -159,10 +189,18 @@ function BookingPage() {
         </div>
         <div className="md:col-span-2 flex flex-wrap items-center gap-3 pt-2">
           <Button type="submit" size="lg" className="rounded-full" disabled={sending}>
-            {sending ? (ar ? "جارٍ الإرسال…" : "Sending…") : (ar ? "أرسل طلب الحجز" : "Send booking request")}
+            {sending
+              ? ar
+                ? "جارٍ الإرسال…"
+                : "Sending…"
+              : ar
+                ? "أرسل طلب الحجز"
+                : "Send booking request"}
           </Button>
           <p className="text-xs text-muted-foreground">
-            {ar ? "بإرسال الطلب فإنك توافق على سياسة الخصوصية." : "By submitting, you agree to our privacy policy."}
+            {ar
+              ? "بإرسال الطلب فإنك توافق على سياسة الخصوصية."
+              : "By submitting, you agree to our privacy policy."}
           </p>
         </div>
       </form>

@@ -33,8 +33,13 @@ function AuthPage() {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success(locale === "ar" ? "تم إرسال رابط إعادة التعيين إلى بريدك" : "Reset link sent to your email");
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(
+      locale === "ar" ? "تم إرسال رابط إعادة التعيين إلى بريدك" : "Reset link sent to your email",
+    );
     setTab("signin");
   };
 
@@ -43,12 +48,14 @@ function AuthPage() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     await refresh();
     toast.success(locale === "ar" ? "تم تسجيل الدخول" : "Signed in");
     navigate({ to: "/admin/dashboard" });
   };
-
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-accent/30 p-4">
@@ -60,7 +67,11 @@ function AuthPage() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary p-2 shadow">
-            <img src={SITE.logo} alt={SITE.brand.en} className="max-h-full max-w-full object-contain" />
+            <img
+              src={SITE.logo}
+              alt={SITE.brand.en}
+              className="max-h-full max-w-full object-contain"
+            />
           </div>
           <CardTitle className="text-2xl mt-2">{t("brand")}</CardTitle>
           <CardDescription>{t("auth_subtitle")}</CardDescription>
@@ -74,13 +85,25 @@ function AuthPage() {
               <form onSubmit={handleSignIn} className="space-y-4 mt-4">
                 <div className="space-y-2">
                   <Label>{t("email")}</Label>
-                  <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>{t("password")}</Label>
-                  <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <Input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
                 </div>
-                <Button className="w-full" disabled={loading}>{t("signin")}</Button>
+                <Button className="w-full" disabled={loading}>
+                  {t("signin")}
+                </Button>
                 <button
                   type="button"
                   className="w-full text-center text-xs text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
@@ -99,7 +122,12 @@ function AuthPage() {
                 </p>
                 <div className="space-y-2">
                   <Label>{t("email")}</Label>
-                  <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <Button className="w-full" disabled={loading}>
                   {locale === "ar" ? "إرسال الرابط" : "Send reset link"}

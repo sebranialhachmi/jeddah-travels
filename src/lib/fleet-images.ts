@@ -40,7 +40,10 @@ export function categoryGallery(row: any, index = 0): string[] {
 
 /** Bilingual alt text — combines EN + AR names in one attribute for a11y & SEO. */
 export function categoryAlt(row: any, locale: "ar" | "en" = "ar"): string {
-  const trs = (row?.vehicle_category_translations ?? []) as Array<{ locale: string; name?: string }>;
+  const trs = (row?.vehicle_category_translations ?? []) as Array<{
+    locale: string;
+    name?: string;
+  }>;
   const en = trs.find((t) => t.locale === "en")?.name ?? row?.code ?? "";
   const ar = trs.find((t) => t.locale === "ar")?.name ?? "";
   const seg =

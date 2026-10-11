@@ -6,24 +6,68 @@ import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { ExportMenu } from "@/components/ExportMenu";
 import { PermissionGate, useHasPermission } from "@/lib/rbac";
 import { useI18n } from "@/lib/i18n";
-import { rangeFromKey, fetchRevenueRaw, groupBy, timeSeries, computeKPIs, money, num } from "@/lib/analytics";
-import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
+import {
+  rangeFromKey,
+  fetchRevenueRaw,
+  groupBy,
+  timeSeries,
+  computeKPIs,
+  money,
+  num,
+} from "@/lib/analytics";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import { DollarSign, TrendingUp, Wallet, Receipt, Undo2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/finance")({ component: Finance });
 
-const COLORS = ["#c9a961", "#8b7d5b", "#4b5563", "#111827", "#6b7280", "#d1a35c", "#e5c78e", "#9e803a"];
+const COLORS = [
+  "#c9a961",
+  "#8b7d5b",
+  "#4b5563",
+  "#111827",
+  "#6b7280",
+  "#d1a35c",
+  "#e5c78e",
+  "#9e803a",
+];
 
 function Finance() {
   const { locale } = useI18n();
   const gate = useHasPermission("finance.view");
-  const [rangeKey, setRangeKey] = useState<"7d"|"30d"|"90d"|"365d"|"mtd"|"ytd">("30d");
-  const [unit, setUnit] = useState<"day"|"week"|"month">("day");
+  const [rangeKey, setRangeKey] = useState<"7d" | "30d" | "90d" | "365d" | "mtd" | "ytd">("30d");
+  const [unit, setUnit] = useState<"day" | "week" | "month">("day");
   const range = useMemo(() => rangeFromKey(rangeKey), [rangeKey]);
 
   const bookings = useQuery({
@@ -33,47 +77,158 @@ function Finance() {
   });
   const payments = useQuery({
     queryKey: ["finance-payments", rangeKey],
-    queryFn: async () => (await supabase.from("payments").select("*").gte("created_at", range.start.toISOString()).lte("created_at", range.end.toISOString())).data ?? [],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("payments")
+          .select("*")
+          .gte("created_at", range.start.toISOString())
+          .lte("created_at", range.end.toISOString())
+      ).data ?? [],
     enabled: gate.allowed,
   });
   const invoices = useQuery({
     queryKey: ["finance-invoices", rangeKey],
-    queryFn: async () => (await supabase.from("invoices").select("*").gte("created_at", range.start.toISOString()).lte("created_at", range.end.toISOString())).data ?? [],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("invoices")
+          .select("*")
+          .gte("created_at", range.start.toISOString())
+          .lte("created_at", range.end.toISOString())
+      ).data ?? [],
     enabled: gate.allowed,
   });
   const expenses = useQuery({
     queryKey: ["finance-expenses", rangeKey],
-    queryFn: async () => (await supabase.from("expenses").select("*").gte("expense_date", range.start.toISOString().slice(0,10)).lte("expense_date", range.end.toISOString().slice(0,10))).data ?? [],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("expenses")
+          .select("*")
+          .gte("expense_date", range.start.toISOString().slice(0, 10))
+          .lte("expense_date", range.end.toISOString().slice(0, 10))
+      ).data ?? [],
     enabled: gate.allowed,
   });
   const refunds = useQuery({
     queryKey: ["finance-refunds", rangeKey],
-    queryFn: async () => (await supabase.from("refunds").select("*").gte("created_at", range.start.toISOString()).lte("created_at", range.end.toISOString())).data ?? [],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("refunds")
+          .select("*")
+          .gte("created_at", range.start.toISOString())
+          .lte("created_at", range.end.toISOString())
+      ).data ?? [],
     enabled: gate.allowed,
   });
 
   const rows = bookings.data ?? [];
   const kpi = useMemo(() => computeKPIs(rows), [rows]);
 
-  const series = useMemo(() => timeSeries(rows.filter((r: any) => r.status === "completed"), range, unit), [rows, range, unit]);
-  const byCity = useMemo(() => groupBy(rows, (r: any) => r.customer?.city, (r: any) => r.status === "completed" ? r.total_fare : 0).slice(0, 15), [rows]);
-  const byRoute = useMemo(() => groupBy(rows, (r: any) => r.route?.name, (r: any) => r.status === "completed" ? r.total_fare : 0).slice(0, 15), [rows]);
-  const byAirport = useMemo(() => groupBy(rows.filter((r: any) => r.route?.from_airport || r.route?.to_airport), (r: any) => r.route?.from_airport || r.route?.to_airport, (r: any) => r.status === "completed" ? r.total_fare : 0), [rows]);
-  const byService = useMemo(() => groupBy(rows, (r: any) => r.category?.name, (r: any) => r.status === "completed" ? r.total_fare : 0), [rows]);
-  const byVehicle = useMemo(() => groupBy(rows, (r: any) => r.vehicle?.plate_number ?? r.vehicle?.model, (r: any) => r.status === "completed" ? r.total_fare : 0).slice(0, 15), [rows]);
-  const byDriver = useMemo(() => groupBy(rows, (r: any) => r.driver?.full_name, (r: any) => r.status === "completed" ? r.total_fare : 0).slice(0, 15), [rows]);
-  const byCorporate = useMemo(() => groupBy(rows.filter((r: any) => r.customer?.corporate?.company_name), (r: any) => r.customer?.corporate?.company_name, (r: any) => r.status === "completed" ? r.total_fare : 0), [rows]);
+  const series = useMemo(
+    () =>
+      timeSeries(
+        rows.filter((r: any) => r.status === "completed"),
+        range,
+        unit,
+      ),
+    [rows, range, unit],
+  );
+  const byCity = useMemo(
+    () =>
+      groupBy(
+        rows,
+        (r: any) => r.customer?.city,
+        (r: any) => (r.status === "completed" ? r.total_fare : 0),
+      ).slice(0, 15),
+    [rows],
+  );
+  const byRoute = useMemo(
+    () =>
+      groupBy(
+        rows,
+        (r: any) => r.route?.name,
+        (r: any) => (r.status === "completed" ? r.total_fare : 0),
+      ).slice(0, 15),
+    [rows],
+  );
+  const byAirport = useMemo(
+    () =>
+      groupBy(
+        rows.filter((r: any) => r.route?.from_airport || r.route?.to_airport),
+        (r: any) => r.route?.from_airport || r.route?.to_airport,
+        (r: any) => (r.status === "completed" ? r.total_fare : 0),
+      ),
+    [rows],
+  );
+  const byService = useMemo(
+    () =>
+      groupBy(
+        rows,
+        (r: any) => r.category?.name,
+        (r: any) => (r.status === "completed" ? r.total_fare : 0),
+      ),
+    [rows],
+  );
+  const byVehicle = useMemo(
+    () =>
+      groupBy(
+        rows,
+        (r: any) => r.vehicle?.plate_number ?? r.vehicle?.model,
+        (r: any) => (r.status === "completed" ? r.total_fare : 0),
+      ).slice(0, 15),
+    [rows],
+  );
+  const byDriver = useMemo(
+    () =>
+      groupBy(
+        rows,
+        (r: any) => r.driver?.full_name,
+        (r: any) => (r.status === "completed" ? r.total_fare : 0),
+      ).slice(0, 15),
+    [rows],
+  );
+  const byCorporate = useMemo(
+    () =>
+      groupBy(
+        rows.filter((r: any) => r.customer?.corporate?.company_name),
+        (r: any) => r.customer?.corporate?.company_name,
+        (r: any) => (r.status === "completed" ? r.total_fare : 0),
+      ),
+    [rows],
+  );
 
   const totalExpenses = (expenses.data ?? []).reduce((s: number, e: any) => s + num(e.amount), 0);
-  const outstandingInvoices = (invoices.data ?? []).filter((i: any) => ["issued","overdue","partially_paid"].includes(i.status)).reduce((s: number, i: any) => s + (num(i.total_amount) - num(i.paid_amount)), 0);
+  const outstandingInvoices = (invoices.data ?? [])
+    .filter((i: any) => ["issued", "overdue", "partially_paid"].includes(i.status))
+    .reduce((s: number, i: any) => s + (num(i.total_amount) - num(i.paid_amount)), 0);
   const totalRefunds = (refunds.data ?? []).reduce((s: number, r: any) => s + num(r.amount), 0);
 
-  const expenseByCategory = useMemo(() => groupBy(expenses.data ?? [], (e: any) => e.category, (e: any) => e.amount), [expenses.data]);
-  const paymentByMethod = useMemo(() => groupBy(payments.data ?? [], (p: any) => p.method, (p: any) => p.amount), [payments.data]);
+  const expenseByCategory = useMemo(
+    () =>
+      groupBy(
+        expenses.data ?? [],
+        (e: any) => e.category,
+        (e: any) => e.amount,
+      ),
+    [expenses.data],
+  );
+  const paymentByMethod = useMemo(
+    () =>
+      groupBy(
+        payments.data ?? [],
+        (p: any) => p.method,
+        (p: any) => p.amount,
+      ),
+    [payments.data],
+  );
 
   const fmt = (n: number) => money(locale, n);
 
-  if (!gate.loading && !gate.allowed) return <div className="p-8 text-center text-muted-foreground">Not authorized</div>;
+  if (!gate.loading && !gate.allowed)
+    return <div className="p-8 text-center text-muted-foreground">Not authorized</div>;
 
   const dimCols = [
     { key: "key", label: locale === "ar" ? "الاسم" : "Name" },
@@ -85,11 +240,17 @@ function Finance() {
     <div>
       <PageHeader
         title={locale === "ar" ? "الإدارة المالية" : "Finance Overview"}
-        description={locale === "ar" ? "الإيرادات والمصروفات والفواتير والمدفوعات" : "Revenue, expenses, invoices, payments and payroll"}
+        description={
+          locale === "ar"
+            ? "الإيرادات والمصروفات والفواتير والمدفوعات"
+            : "Revenue, expenses, invoices, payments and payroll"
+        }
         actions={
           <div className="flex items-center gap-2">
             <Select value={rangeKey} onValueChange={(v: any) => setRangeKey(v)}>
-              <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="7d">Last 7 days</SelectItem>
                 <SelectItem value="30d">Last 30 days</SelectItem>
@@ -104,18 +265,43 @@ function Finance() {
       />
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <StatCard label={locale === "ar" ? "الإيراد" : "Revenue"} value={fmt(kpi.revenue)} icon={TrendingUp} tone="primary" />
-        <StatCard label={locale === "ar" ? "متوسط الحجز" : "Avg. Booking"} value={fmt(kpi.avg)} icon={DollarSign} />
-        <StatCard label={locale === "ar" ? "المصروفات" : "Expenses"} value={fmt(totalExpenses)} icon={Wallet} tone="warning" />
-        <StatCard label={locale === "ar" ? "فواتير مستحقة" : "Outstanding"} value={fmt(outstandingInvoices)} icon={Receipt} />
-        <StatCard label={locale === "ar" ? "المرتجعات" : "Refunds"} value={fmt(totalRefunds)} icon={Undo2} tone="warning" />
+        <StatCard
+          label={locale === "ar" ? "الإيراد" : "Revenue"}
+          value={fmt(kpi.revenue)}
+          icon={TrendingUp}
+          tone="primary"
+        />
+        <StatCard
+          label={locale === "ar" ? "متوسط الحجز" : "Avg. Booking"}
+          value={fmt(kpi.avg)}
+          icon={DollarSign}
+        />
+        <StatCard
+          label={locale === "ar" ? "المصروفات" : "Expenses"}
+          value={fmt(totalExpenses)}
+          icon={Wallet}
+          tone="warning"
+        />
+        <StatCard
+          label={locale === "ar" ? "فواتير مستحقة" : "Outstanding"}
+          value={fmt(outstandingInvoices)}
+          icon={Receipt}
+        />
+        <StatCard
+          label={locale === "ar" ? "المرتجعات" : "Refunds"}
+          value={fmt(totalRefunds)}
+          icon={Undo2}
+          tone="warning"
+        />
       </div>
 
       <Card className="mb-6">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{locale === "ar" ? "اتجاه الإيراد" : "Revenue trend"}</CardTitle>
           <Select value={unit} onValueChange={(v: any) => setUnit(v)}>
-            <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-24">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="day">Day</SelectItem>
               <SelectItem value="week">Week</SelectItem>
@@ -131,8 +317,20 @@ function Finance() {
               <YAxis tick={{ fontSize: 10 }} />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#c9a961" strokeWidth={2} name={locale === "ar" ? "الإيراد" : "Revenue"} />
-              <Line type="monotone" dataKey="trips" stroke="#4b5563" strokeWidth={2} name={locale === "ar" ? "الرحلات" : "Trips"} />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#c9a961"
+                strokeWidth={2}
+                name={locale === "ar" ? "الإيراد" : "Revenue"}
+              />
+              <Line
+                type="monotone"
+                dataKey="trips"
+                stroke="#4b5563"
+                strokeWidth={2}
+                name={locale === "ar" ? "الرحلات" : "Trips"}
+              />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -166,7 +364,13 @@ function Finance() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{title}</CardTitle>
-                <ExportMenu module="finance" filename={`finance-${v}-${rangeKey}`} title={title} rows={data} columns={dimCols} />
+                <ExportMenu
+                  module="finance"
+                  filename={`finance-${v}-${rangeKey}`}
+                  title={title}
+                  rows={data}
+                  columns={dimCols}
+                />
               </CardHeader>
               <CardContent>
                 <div className="grid gap-6 md:grid-cols-2">
@@ -183,8 +387,16 @@ function Finance() {
                   <div className="h-72">
                     <ResponsiveContainer>
                       <PieChart>
-                        <Pie data={data.slice(0, 8)} dataKey="total" nameKey="key" outerRadius={90} label={(e: any) => e.key}>
-                          {data.slice(0, 8).map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        <Pie
+                          data={data.slice(0, 8)}
+                          dataKey="total"
+                          nameKey="key"
+                          outerRadius={90}
+                          label={(e: any) => e.key}
+                        >
+                          {data.slice(0, 8).map((_, i) => (
+                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                          ))}
                         </Pie>
                         <Tooltip formatter={(v: any) => fmt(Number(v))} />
                       </PieChart>
@@ -196,8 +408,12 @@ function Finance() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>{locale === "ar" ? "الاسم" : "Name"}</TableHead>
-                        <TableHead className="text-end">{locale === "ar" ? "الرحلات" : "Trips"}</TableHead>
-                        <TableHead className="text-end">{locale === "ar" ? "الإيراد" : "Revenue"}</TableHead>
+                        <TableHead className="text-end">
+                          {locale === "ar" ? "الرحلات" : "Trips"}
+                        </TableHead>
+                        <TableHead className="text-end">
+                          {locale === "ar" ? "الإيراد" : "Revenue"}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -208,7 +424,13 @@ function Finance() {
                           <TableCell className="text-end font-mono">{fmt(r.total)}</TableCell>
                         </TableRow>
                       ))}
-                      {!data.length && <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground py-8">No data</TableCell></TableRow>}
+                      {!data.length && (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                            No data
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </div>

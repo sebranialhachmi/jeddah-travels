@@ -71,9 +71,14 @@ export function ContactInfoProvider({ children }: { children: ReactNode }) {
     // Realtime: reflect admin edits everywhere without reload.
     const channel = supabase
       .channel("settings-contact-info")
-      .on("postgres_changes", { event: "*", schema: "public", table: "settings" }, () => { void load(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "settings" }, () => {
+        void load();
+      })
       .subscribe();
-    return () => { cancelled = true; supabase.removeChannel(channel); };
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return <Ctx.Provider value={info}>{children}</Ctx.Provider>;

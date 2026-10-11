@@ -5,16 +5,71 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { ReactNode } from "react";
 
-export const ACTIONS = ["view","create","edit","delete","export","publish","assign","manage","approve","print","restore","audit"] as const;
+export const ACTIONS = [
+  "view",
+  "create",
+  "edit",
+  "delete",
+  "export",
+  "publish",
+  "assign",
+  "manage",
+  "approve",
+  "print",
+  "restore",
+  "audit",
+] as const;
 export type PermAction = (typeof ACTIONS)[number];
 
 export const MODULES = [
-  "bookings","customers","drivers","fleet","categories","routes","dispatch","calendar","tasks","reminders",
-  "finance","payments","invoices","expenses","refunds","corporate","payroll","pricing","coupons",
-  "cms","blog","pages","faqs","testimonials","team","menus","hero","homepage","media","promotions","partners","services","cities","airports",
-  "seo","redirects","contacts","whatsapp",
-  "reports","analytics","audit","activity",
-  "users","roles","settings","operations","notifications","marketing",
+  "bookings",
+  "customers",
+  "drivers",
+  "fleet",
+  "categories",
+  "routes",
+  "dispatch",
+  "calendar",
+  "tasks",
+  "reminders",
+  "finance",
+  "payments",
+  "invoices",
+  "expenses",
+  "refunds",
+  "corporate",
+  "payroll",
+  "pricing",
+  "coupons",
+  "cms",
+  "blog",
+  "pages",
+  "faqs",
+  "testimonials",
+  "team",
+  "menus",
+  "hero",
+  "homepage",
+  "media",
+  "promotions",
+  "partners",
+  "services",
+  "cities",
+  "airports",
+  "seo",
+  "redirects",
+  "contacts",
+  "whatsapp",
+  "reports",
+  "analytics",
+  "audit",
+  "activity",
+  "users",
+  "roles",
+  "settings",
+  "operations",
+  "notifications",
+  "marketing",
 ] as const;
 export type PermModule = (typeof MODULES)[number];
 
@@ -49,7 +104,15 @@ export function useHasPermission(code: string) {
   return { allowed, loading: false };
 }
 
-export function PermissionGate({ code, children, fallback = null }: { code: string; children: ReactNode; fallback?: ReactNode }) {
+export function PermissionGate({
+  code,
+  children,
+  fallback = null,
+}: {
+  code: string;
+  children: ReactNode;
+  fallback?: ReactNode;
+}) {
   const { allowed, loading } = useHasPermission(code);
   if (loading || !allowed) return <>{fallback}</>;
   return <>{children}</>;

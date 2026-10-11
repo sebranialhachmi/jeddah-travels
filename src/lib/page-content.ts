@@ -50,9 +50,7 @@ function num(re: RegExp, s: string | null | undefined): string | null {
 /** Split "A to B Taxi Transfer" / "A إلى B" into endpoints when possible. */
 function endpoints(title: string, locale: Locale): { from: string; to: string } | null {
   const sep = locale === "ar" ? /\s+إلى\s+/ : /\s+to\s+/i;
-  const cleaned = title
-    .replace(/\s*(Taxi Transfer|Taxi|تاكسي|توصيل)\s*$/i, "")
-    .trim();
+  const cleaned = title.replace(/\s*(Taxi Transfer|Taxi|تاكسي|توصيل)\s*$/i, "").trim();
   const parts = cleaned.split(sep);
   if (parts.length === 2 && parts[0] && parts[1]) {
     return { from: parts[0].trim(), to: parts[1].trim() };
@@ -63,7 +61,7 @@ function endpoints(title: string, locale: Locale): { from: string; to: string } 
 export function buildPageSections(page: DetailPageData, locale: Locale): PageSections {
   const ar = locale === "ar";
   const title = ar ? page.title_ar : page.title_en;
-  
+
   const en = page.subtitle_en ?? "";
 
   const distance = num(/(\d+)\s*km/i, en);

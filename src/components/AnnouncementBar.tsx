@@ -7,7 +7,13 @@ import { X, Sparkles, Tag, Gift, Plane, Percent } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { listAnnouncements } from "@/lib/public.functions";
 
-const ICONS: Record<string, any> = { sparkles: Sparkles, tag: Tag, gift: Gift, plane: Plane, percent: Percent };
+const ICONS: Record<string, any> = {
+  sparkles: Sparkles,
+  tag: Tag,
+  gift: Gift,
+  plane: Plane,
+  percent: Percent,
+};
 
 function matchesPath(target: string[] | null | undefined, pathname: string): boolean {
   if (!target || target.length === 0) return true; // empty = all pages
@@ -48,8 +54,12 @@ export function AnnouncementBar() {
   if (!active) return null;
 
   const title = ar ? active.title_ar || active.title_en : active.title_en || active.title_ar;
-  const desc = ar ? active.description_ar || active.description_en : active.description_en || active.description_ar;
-  const cta = ar ? active.cta_text_ar || active.cta_text_en : active.cta_text_en || active.cta_text_ar;
+  const desc = ar
+    ? active.description_ar || active.description_en
+    : active.description_en || active.description_ar;
+  const cta = ar
+    ? active.cta_text_ar || active.cta_text_en
+    : active.cta_text_en || active.cta_text_ar;
   const Icon = ICONS[String(active.icon || "").toLowerCase()] || Sparkles;
   const bg = active.bg_color || "hsl(var(--primary))";
   const fg = active.text_color || "hsl(var(--primary-foreground))";
@@ -58,7 +68,9 @@ export function AnnouncementBar() {
     const next = new Set(dismissed);
     next.add(active.id);
     setDismissed(next);
-    try { window.localStorage.setItem("dismissed_announcements", JSON.stringify([...next])); } catch {}
+    try {
+      window.localStorage.setItem("dismissed_announcements", JSON.stringify([...next]));
+    } catch {}
   };
 
   return (

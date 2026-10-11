@@ -10,7 +10,9 @@ function CitiesAdmin() {
     <CmsPageManager
       pageType="city"
       title={locale === "ar" ? "المدن" : "Cities"}
-      description={locale === "ar" ? "صفحات المدن للسيو" : "City landing pages for programmatic SEO."}
+      description={
+        locale === "ar" ? "صفحات المدن للسيو" : "City landing pages for programmatic SEO."
+      }
       publicPathPrefix="/cities"
       defaultSchemaType="Place"
     />

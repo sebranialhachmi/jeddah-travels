@@ -6,7 +6,15 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Upload, Database, ShieldCheck, HardDrive, Loader2, AlertTriangle } from "lucide-react";
+import {
+  Download,
+  Upload,
+  Database,
+  ShieldCheck,
+  HardDrive,
+  Loader2,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useRef, useState } from "react";
 
@@ -54,23 +62,32 @@ function BackupPage() {
 
   return (
     <div dir="rtl">
-      <PageHeader title="النسخ الاحتياطي والاستعادة" description="تصدير كامل لبيانات الموقع وإمكانية استعادتها من ملف نسخة سابقة." />
+      <PageHeader
+        title="النسخ الاحتياطي والاستعادة"
+        description="تصدير كامل لبيانات الموقع وإمكانية استعادتها من ملف نسخة سابقة."
+      />
 
       <div className="grid gap-4 md:grid-cols-3 mb-8">
         <Card className="p-5">
           <Database className="h-6 w-6 text-emerald-600 mb-3" />
           <h3 className="font-semibold">قاعدة البيانات</h3>
-          <p className="text-sm text-muted-foreground mt-1">نسخ احتياطي يومي تلقائي مُدار من Lovable Cloud مع استعادة إلى نقطة زمنية عند الطلب.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            نسخ احتياطي يومي تلقائي مُدار من Lovable Cloud مع استعادة إلى نقطة زمنية عند الطلب.
+          </p>
         </Card>
         <Card className="p-5">
           <HardDrive className="h-6 w-6 text-emerald-600 mb-3" />
           <h3 className="font-semibold">تخزين الملفات</h3>
-          <p className="text-sm text-muted-foreground mt-1">جميع المستندات والوسائط محفوظة في حاويات مشفّرة مع نسخ متعددة.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            جميع المستندات والوسائط محفوظة في حاويات مشفّرة مع نسخ متعددة.
+          </p>
         </Card>
         <Card className="p-5">
           <ShieldCheck className="h-6 w-6 text-emerald-600 mb-3" />
           <h3 className="font-semibold">التحكم بالوصول</h3>
-          <p className="text-sm text-muted-foreground mt-1">أمان مستوى الصفوف (RLS) يضمن أن كل قراءة وكتابة محصورة بالأدوار المخوّلة.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            أمان مستوى الصفوف (RLS) يضمن أن كل قراءة وكتابة محصورة بالأدوار المخوّلة.
+          </p>
         </Card>
       </div>
 
@@ -79,11 +96,16 @@ function BackupPage() {
           <div className="max-w-xl">
             <h3 className="font-semibold text-lg">تنزيل نسخة كاملة من الموقع</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              يتضمّن الحجوزات، العملاء، السائقين، الأسطول، الفواتير، المدفوعات، المصاريف، المحتوى (CMS)، المدوّنة، الأسئلة الشائعة، الإعدادات وقوالب واتساب — حتى 50,000 صف لكل جدول.
+              يتضمّن الحجوزات، العملاء، السائقين، الأسطول، الفواتير، المدفوعات، المصاريف، المحتوى
+              (CMS)، المدوّنة، الأسئلة الشائعة، الإعدادات وقوالب واتساب — حتى 50,000 صف لكل جدول.
             </p>
           </div>
           <Button onClick={() => exp.mutate()} disabled={exp.isPending} size="lg" className="gap-2">
-            {exp.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            {exp.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
             {exp.isPending ? "جارٍ التحضير…" : "تنزيل النسخة (JSON)"}
           </Button>
         </div>
@@ -95,7 +117,9 @@ function BackupPage() {
           <div>
             <h3 className="font-semibold text-lg">رفع واستعادة نسخة احتياطية</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              اختر ملف <code>.json</code> تم تصديره من هذا النظام. ستتم إعادة إدخال الصفوف عبر Upsert بناءً على المفتاح الأساسي — الصفوف الحالية بنفس الـID ستُحدَّث. يُفضّل تنزيل نسخة حالية أولاً قبل الاستعادة.
+              اختر ملف <code>.json</code> تم تصديره من هذا النظام. ستتم إعادة إدخال الصفوف عبر
+              Upsert بناءً على المفتاح الأساسي — الصفوف الحالية بنفس الـID ستُحدَّث. يُفضّل تنزيل
+              نسخة حالية أولاً قبل الاستعادة.
             </p>
           </div>
         </div>
@@ -115,7 +139,11 @@ function BackupPage() {
             size="lg"
             className="gap-2"
           >
-            {imp.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {imp.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
             {imp.isPending ? "جارٍ الاستعادة…" : "رفع واستعادة"}
           </Button>
         </div>
@@ -135,7 +163,13 @@ function BackupPage() {
                   <tr key={r.table} className="border-t">
                     <td className="p-2 font-mono text-xs">{r.table}</td>
                     <td className="p-2">{r.inserted}</td>
-                    <td className="p-2">{r.error ? <span className="text-red-600">{r.error}</span> : <span className="text-emerald-600">تم</span>}</td>
+                    <td className="p-2">
+                      {r.error ? (
+                        <span className="text-red-600">{r.error}</span>
+                      ) : (
+                        <span className="text-emerald-600">تم</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -14,7 +14,10 @@ export type WATemplate = {
   is_active: boolean;
 };
 
-export function renderTemplate(body: string, vars: Record<string, string | number | null | undefined>): string {
+export function renderTemplate(
+  body: string,
+  vars: Record<string, string | number | null | undefined>,
+): string {
   return body.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
     const v = vars[key];
     return v === null || v === undefined ? "" : String(v);

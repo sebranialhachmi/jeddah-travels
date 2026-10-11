@@ -2,7 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { openWhatsApp, renderTemplate, type WATemplate } from "@/lib/whatsapp";
 import { useI18n } from "@/lib/i18n";
 import { useServerFn } from "@tanstack/react-start";
@@ -48,7 +55,17 @@ export function WhatsAppSendMenu({
   const send = (t: WATemplate) => {
     openWhatsApp({ phone, template: t, vars, locale });
     const body = renderTemplate(locale === "ar" ? t.body_ar : t.body_en, vars);
-    log({ data: { phone: phone ?? "", body, locale, template_code: t.code, booking_id: bookingId, customer_id: customerId, contact_id: contactId } }).catch(() => {});
+    log({
+      data: {
+        phone: phone ?? "",
+        body,
+        locale,
+        template_code: t.code,
+        booking_id: bookingId,
+        customer_id: customerId,
+        contact_id: contactId,
+      },
+    }).catch(() => {});
   };
 
   return (
@@ -65,7 +82,9 @@ export function WhatsAppSendMenu({
           <DropdownMenuItem key={t.code} onSelect={() => send(t)}>
             <div className="flex flex-col">
               <span className="text-sm">{t.name}</span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t.category}</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                {t.category}
+              </span>
             </div>
           </DropdownMenuItem>
         ))}
@@ -76,4 +95,3 @@ export function WhatsAppSendMenu({
     </DropdownMenu>
   );
 }
-

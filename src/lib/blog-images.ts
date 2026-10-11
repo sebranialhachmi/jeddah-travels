@@ -10,10 +10,19 @@ type BlogImagePost = {
   tags?: string[] | null;
 };
 
-const fallbackImages = [airportTransferImage, luxuryCarImage, suvImage, vanImage, businessTravelImage];
+const fallbackImages = [
+  airportTransferImage,
+  luxuryCarImage,
+  suvImage,
+  vanImage,
+  businessTravelImage,
+];
 
 function stableIndex(value: string) {
-  return Array.from(value).reduce((total, character) => total + character.charCodeAt(0), 0) % fallbackImages.length;
+  return (
+    Array.from(value).reduce((total, character) => total + character.charCodeAt(0), 0) %
+    fallbackImages.length
+  );
 }
 
 /** Every published article gets a stable, relevant cover even when the CMS has no uploaded image. */

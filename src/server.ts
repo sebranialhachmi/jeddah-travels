@@ -105,7 +105,9 @@ function canonicalHostRedirect(request: Request): Response | null {
   const bareHost = host.replace(/^www\./, "");
   if (bareHost !== CANONICAL_HOST) return null;
 
-  const proto = (request.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "")).toLowerCase();
+  const proto = (
+    request.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "")
+  ).toLowerCase();
   if (host === CANONICAL_HOST && proto === "https") return null;
 
   // Root goes straight to the default-locale homepage (avoid a 2-hop chain).
@@ -139,11 +141,13 @@ export default {
         const target = m ? EDGE_LEGACY_REDIRECTS[m[2]] : undefined;
         if (target) {
           return applySecurityHeaders(
-            new Response(null, { status: 301, headers: { Location: `/${m![1] ?? "ar"}${target}` } }),
+            new Response(null, {
+              status: 301,
+              headers: { Location: `/${m![1] ?? "ar"}${target}` },
+            }),
           );
         }
       }
-
 
       if (isMalformedTemplateUrl(request)) {
         return applySecurityHeaders(
@@ -159,10 +163,7 @@ export default {
       // A stale/unknown server-function id (typically after a deploy or HMR
       // reload) makes the router throw "forgot to return a response". Answer
       // the RPC with a clean 404 instead of an HTML 500 that blanks the page.
-      if (
-        response.status >= 500 &&
-        new URL(request.url).pathname.startsWith("/_serverFn")
-      ) {
+      if (response.status >= 500 && new URL(request.url).pathname.startsWith("/_serverFn")) {
         return applySecurityHeaders(
           new Response(JSON.stringify({ error: "Server function not found" }), {
             status: 404,
@@ -172,15 +173,14 @@ export default {
       }
 
       return applySecurityHeaders(await normalizeCatastrophicSsrResponse(response));
-
-
     } catch (error) {
       console.error(error);
-      return applySecurityHeaders(new Response(renderErrorPage(), {
-        status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      }));
+      return applySecurityHeaders(
+        new Response(renderErrorPage(), {
+          status: 500,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        }),
+      );
     }
   },
 };
-

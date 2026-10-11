@@ -4,7 +4,10 @@
 // Default baseUrl: http://localhost:8080
 import { load } from "cheerio";
 
-const BASE = (process.argv[2] || process.env.SEO_BASE_URL || "http://localhost:8080").replace(/\/+$/, "");
+const BASE = (process.argv[2] || process.env.SEO_BASE_URL || "http://localhost:8080").replace(
+  /\/+$/,
+  "",
+);
 const results = [];
 const record = (name, ok, detail = "") => {
   results.push({ name, ok, detail });
@@ -68,8 +71,11 @@ async function checkPage(path, expectedLocale) {
     try {
       const data = JSON.parse($(el).contents().text());
       const arr = Array.isArray(data) ? data : [data];
-      for (const d of arr) if (d["@type"] === "WebSite" || d["@type"] === "Organization") hasWebsite = true;
-    } catch { /* ignore */ }
+      for (const d of arr)
+        if (d["@type"] === "WebSite" || d["@type"] === "Organization") hasWebsite = true;
+    } catch {
+      /* ignore */
+    }
   });
   record(`JSON-LD includes WebSite/Organization on ${path}`, hasWebsite);
 }
@@ -80,16 +86,21 @@ async function checkRobots() {
   record("robots.txt HTTP 200", status === 200, `status=${status}`);
   record("robots.txt has User-agent", /user-agent:/i.test(text));
   record("robots.txt has Sitemap directive", /sitemap:\s*https?:/i.test(text));
-  record("robots.txt content-type text/plain",
-    (headers["content-type"] || "").includes("text/plain") || (headers["content-type"] || "").includes("text"));
+  record(
+    "robots.txt content-type text/plain",
+    (headers["content-type"] || "").includes("text/plain") ||
+      (headers["content-type"] || "").includes("text"),
+  );
 }
 
 async function checkSitemap() {
   console.log("\n=== /sitemap.xml ===");
   const { status, text, headers } = await fetchText(BASE + "/sitemap.xml");
   record("sitemap.xml HTTP 200", status === 200, `status=${status}`);
-  record("sitemap.xml is XML",
-    (headers["content-type"] || "").includes("xml") && text.startsWith("<?xml"));
+  record(
+    "sitemap.xml is XML",
+    (headers["content-type"] || "").includes("xml") && text.startsWith("<?xml"),
+  );
   record("sitemap contains /ar URLs", /<loc>[^<]*\/ar(?:\/|<)/.test(text));
   record("sitemap contains /en URLs", /<loc>[^<]*\/en(?:\/|<)/.test(text));
   record("sitemap contains xhtml:link hreflang alternates", /xhtml:link[^>]*hreflang=/.test(text));
@@ -111,4 +122,7 @@ async function checkSitemap() {
     for (const f of failed) console.log(`  ❌ ${f.name}  ${f.detail}`);
     process.exit(1);
   }
-})().catch((e) => { console.error(e); process.exit(2); });
+})().catch((e) => {
+  console.error(e);
+  process.exit(2);
+});

@@ -10,7 +10,10 @@ export const Route = createFileRoute("/sitemap-categories.xml")({
     handlers: {
       GET: async () => {
         const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!);
-        const { data: cats } = await sb.from("vehicle_categories").select("code,created_at").eq("is_active", true);
+        const { data: cats } = await sb
+          .from("vehicle_categories")
+          .select("code,created_at")
+          .eq("is_active", true);
 
         const urls: string[] = [];
         for (const c of cats ?? []) {

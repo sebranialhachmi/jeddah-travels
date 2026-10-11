@@ -25,9 +25,17 @@ export const Route = createFileRoute("/_public/{-$locale}/search")({
       meta: [
         { title: isAr ? "بحث — تاكسي العمرة" : "Search — Omra Taxi" },
         { name: "robots", content: "noindex,follow" },
-        { name: "description", content: isAr ? "ابحث في موقع تاكسي العمرة عن المدن والمطارات والمسارات والمدونة." : "Search Omra Taxi for cities, airports, routes and blog articles." },
+        {
+          name: "description",
+          content: isAr
+            ? "ابحث في موقع تاكسي العمرة عن المدن والمطارات والمسارات والمدونة."
+            : "Search Omra Taxi for cities, airports, routes and blog articles.",
+        },
         { property: "og:title", content: isAr ? "بحث — تاكسي العمرة" : "Search — Omra Taxi" },
-        { property: "og:description", content: isAr ? "ابحث في موقع تاكسي العمرة." : "Search the Omra Taxi site." },
+        {
+          property: "og:description",
+          content: isAr ? "ابحث في موقع تاكسي العمرة." : "Search the Omra Taxi site.",
+        },
       ],
     };
   },
@@ -36,12 +44,18 @@ export const Route = createFileRoute("/_public/{-$locale}/search")({
 
 function pageHref(pageType: string, slug: string): string {
   switch (pageType) {
-    case "city": return `/cities/${slug}`;
-    case "airport": return `/airports/${slug}`;
-    case "route": return `/routes/${slug}`;
-    case "service": return `/services/${slug}`;
-    case "vehicle": return `/fleet/${slug}`;
-    default: return `/p/${slug}`;
+    case "city":
+      return `/cities/${slug}`;
+    case "airport":
+      return `/airports/${slug}`;
+    case "route":
+      return `/routes/${slug}`;
+    case "service":
+      return `/services/${slug}`;
+    case "vehicle":
+      return `/fleet/${slug}`;
+    default:
+      return `/p/${slug}`;
   }
 }
 
@@ -57,13 +71,21 @@ function SearchPage() {
     const out: Array<{ title: string; href: string; kind: string }> = [];
     for (const p of data.pages as any[]) {
       const t = ar ? (p.title_ar ?? p.title_en) : (p.title_en ?? p.title_ar);
-      const hay = `${p.title_en ?? ""} ${p.title_ar ?? ""} ${p.subtitle_en ?? ""} ${p.subtitle_ar ?? ""} ${p.slug}`.toLowerCase();
-      if (hay.includes(term)) out.push({ title: t, href: `/${locale}${pageHref(p.page_type, p.slug)}`, kind: p.page_type });
+      const hay =
+        `${p.title_en ?? ""} ${p.title_ar ?? ""} ${p.subtitle_en ?? ""} ${p.subtitle_ar ?? ""} ${p.slug}`.toLowerCase();
+      if (hay.includes(term))
+        out.push({
+          title: t,
+          href: `/${locale}${pageHref(p.page_type, p.slug)}`,
+          kind: p.page_type,
+        });
     }
     for (const b of data.posts as any[]) {
       const t = ar ? (b.title_ar ?? b.title_en) : (b.title_en ?? b.title_ar);
-      const hay = `${b.title_en ?? ""} ${b.title_ar ?? ""} ${b.excerpt_en ?? ""} ${b.excerpt_ar ?? ""} ${b.slug}`.toLowerCase();
-      if (hay.includes(term)) out.push({ title: t, href: `/${locale}/blog/${b.slug}`, kind: "blog" });
+      const hay =
+        `${b.title_en ?? ""} ${b.title_ar ?? ""} ${b.excerpt_en ?? ""} ${b.excerpt_ar ?? ""} ${b.slug}`.toLowerCase();
+      if (hay.includes(term))
+        out.push({ title: t, href: `/${locale}/blog/${b.slug}`, kind: "blog" });
     }
     return out.slice(0, 50);
   }, [q, data, ar, locale]);
@@ -77,7 +99,9 @@ function SearchPage() {
           autoFocus
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder={ar ? "ابحث عن مدينة، مطار، خدمة، مقال…" : "Search a city, airport, service, article…"}
+          placeholder={
+            ar ? "ابحث عن مدينة، مطار، خدمة، مقال…" : "Search a city, airport, service, article…"
+          }
           className="ps-9"
           aria-label={ar ? "بحث" : "Search"}
         />
@@ -90,9 +114,14 @@ function SearchPage() {
         <ul className="divide-y divide-border/60">
           {results.map((r, i) => (
             <li key={i} className="py-3">
-              <Link to={r.href} className="flex items-center justify-between gap-4 hover:text-primary">
+              <Link
+                to={r.href}
+                className="flex items-center justify-between gap-4 hover:text-primary"
+              >
                 <span className="font-medium">{r.title}</span>
-                <span className="text-xs uppercase tracking-wider text-muted-foreground">{r.kind}</span>
+                <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                  {r.kind}
+                </span>
               </Link>
             </li>
           ))}

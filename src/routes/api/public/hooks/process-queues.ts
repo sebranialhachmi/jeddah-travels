@@ -10,7 +10,9 @@ import { createClient } from "@supabase/supabase-js";
 const BATCH_SIZE = 25;
 const BACKOFF_MINUTES = [1, 5, 15, 60, 240];
 
-async function sendWhatsapp(row: any): Promise<{ ok: true; ref?: string } | { ok: false; error: string }> {
+async function sendWhatsapp(
+  row: any,
+): Promise<{ ok: true; ref?: string } | { ok: false; error: string }> {
   // Adapter placeholder. Any WhatsApp Business API provider can be wired here
   // (Twilio, 360dialog, WATI, Meta Cloud API). Until a provider secret is
   // configured, we log the intent and mark the row 'sent' so operators can see
@@ -21,7 +23,9 @@ async function sendWhatsapp(row: any): Promise<{ ok: true; ref?: string } | { ok
     // Skeleton for a future provider POST.
     // const res = await fetch("https://provider.example/v1/messages", { ... });
     return { ok: true, ref: "provider-stub" };
-  } catch (e: any) { return { ok: false, error: e?.message ?? "provider_error" }; }
+  } catch (e: any) {
+    return { ok: false, error: e?.message ?? "provider_error" };
+  }
 }
 
 async function sendEmail(row: any): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -33,7 +37,9 @@ async function sendEmail(row: any): Promise<{ ok: true } | { ok: false; error: s
   try {
     // Skeleton — real implementation swapped in when the email templates directory exists.
     return { ok: true };
-  } catch (e: any) { return { ok: false, error: e?.message ?? "email_error" }; }
+  } catch (e: any) {
+    return { ok: false, error: e?.message ?? "email_error" };
+  }
 }
 
 export const Route = createFileRoute("/api/public/hooks/process-queues")({
@@ -59,12 +65,17 @@ export const Route = createFileRoute("/api/public/hooks/process-queues")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        const admin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
-          auth: { persistSession: false, autoRefreshToken: false },
-        });
+        const admin = createClient(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          {
+            auth: { persistSession: false, autoRefreshToken: false },
+          },
+        );
 
         // Fetch batch of due queued/failed rows.
-        const { data: rows, error } = await admin.from("notification_queue")
+        const { data: rows, error } = await admin
+          .from("notification_queue")
           .select("*")
           .in("status", ["queued", "failed"])
           .lte("scheduled_for", new Date().toISOString())
@@ -75,8 +86,14 @@ export const Route = createFileRoute("/api/public/hooks/process-queues")({
         const results = { processed: 0, sent: 0, failed: 0, skipped: 0 };
 
         for (const row of rows ?? []) {
-          if (row.attempts >= row.max_attempts) { results.skipped++; continue; }
-          await admin.from("notification_queue").update({ status: "sending", attempts: row.attempts + 1 }).eq("id", row.id);
+          if (row.attempts >= row.max_attempts) {
+            results.skipped++;
+            continue;
+          }
+          await admin
+            .from("notification_queue")
+            .update({ status: "sending", attempts: row.attempts + 1 })
+            .eq("id", row.id);
 
           let result: { ok: boolean; error?: string; ref?: string };
           if (row.channel === "whatsapp") result = await sendWhatsapp(row);
@@ -92,32 +109,46 @@ export const Route = createFileRoute("/api/public/hooks/process-queues")({
                 data: row.payload,
               });
               result = { ok: true };
-            } catch (e: any) { result = { ok: false, error: e?.message ?? "internal_error" }; }
+            } catch (e: any) {
+              result = { ok: false, error: e?.message ?? "internal_error" };
+            }
           } else result = { ok: false, error: `Unsupported channel: ${row.channel}` };
 
           results.processed++;
           if (result.ok) {
             results.sent++;
-            await admin.from("notification_queue").update({
-              status: "sent", sent_at: new Date().toISOString(), last_error: null,
-              payload: { ...(row.payload as any), _ref: result.ref },
-            }).eq("id", row.id);
+            await admin
+              .from("notification_queue")
+              .update({
+                status: "sent",
+                sent_at: new Date().toISOString(),
+                last_error: null,
+                payload: { ...(row.payload as any), _ref: result.ref },
+              })
+              .eq("id", row.id);
           } else {
             results.failed++;
             const nextAttempt = row.attempts + 1;
             const isFinal = nextAttempt >= row.max_attempts;
-            const backoffMin = BACKOFF_MINUTES[Math.min(nextAttempt - 1, BACKOFF_MINUTES.length - 1)];
-            await admin.from("notification_queue").update({
-              status: isFinal ? "failed" : "queued",
-              last_error: result.error?.slice(0, 500) ?? "unknown",
-              scheduled_for: new Date(Date.now() + backoffMin * 60_000).toISOString(),
-            }).eq("id", row.id);
+            const backoffMin =
+              BACKOFF_MINUTES[Math.min(nextAttempt - 1, BACKOFF_MINUTES.length - 1)];
+            await admin
+              .from("notification_queue")
+              .update({
+                status: isFinal ? "failed" : "queued",
+                last_error: result.error?.slice(0, 500) ?? "unknown",
+                scheduled_for: new Date(Date.now() + backoffMin * 60_000).toISOString(),
+              })
+              .eq("id", row.id);
           }
         }
 
-        return new Response(JSON.stringify({ ok: true, ...results, ts: new Date().toISOString() }), {
-          headers: { "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({ ok: true, ...results, ts: new Date().toISOString() }),
+          {
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       },
     },
   },

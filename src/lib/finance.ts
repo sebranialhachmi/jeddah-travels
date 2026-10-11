@@ -1,6 +1,10 @@
 export const DEFAULT_CURRENCY = "SAR";
 
-export function fmtMoney(n: number | string | null | undefined, currency = DEFAULT_CURRENCY, locale = "en") {
+export function fmtMoney(
+  n: number | string | null | undefined,
+  currency = DEFAULT_CURRENCY,
+  locale = "en",
+) {
   const v = Number(n ?? 0);
   return new Intl.NumberFormat(locale === "ar" ? "ar" : "en", {
     style: "currency",

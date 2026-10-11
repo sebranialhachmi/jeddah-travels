@@ -6,13 +6,27 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Database, HardDrive, ShieldCheck, MessageCircle, Bot } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  RefreshCw,
+  Database,
+  HardDrive,
+  ShieldCheck,
+  MessageCircle,
+  Bot,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/operations")({ component: OpsPage });
 
 const ICONS: Record<string, any> = {
-  Database, Storage: HardDrive, Auth: ShieldCheck, "WhatsApp templates": MessageCircle, "AI Gateway": Bot,
+  Database,
+  Storage: HardDrive,
+  Auth: ShieldCheck,
+  "WhatsApp templates": MessageCircle,
+  "AI Gateway": Bot,
 };
 
 const SERVICE_LABELS_AR: Record<string, string> = {
@@ -40,9 +54,23 @@ const COUNTER_LABELS_AR: Record<string, string> = {
 };
 
 function StatusBadge({ status, ar }: { status: "ok" | "warn" | "down"; ar: boolean }) {
-  if (status === "ok") return <Badge className="bg-emerald-600 hover:bg-emerald-600 gap-1"><CheckCircle2 className="h-3 w-3" /> {ar ? "يعمل" : "Operational"}</Badge>;
-  if (status === "warn") return <Badge className="bg-amber-500 hover:bg-amber-500 text-black gap-1"><AlertTriangle className="h-3 w-3" /> {ar ? "متدهور" : "Degraded"}</Badge>;
-  return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" /> {ar ? "متوقف" : "Down"}</Badge>;
+  if (status === "ok")
+    return (
+      <Badge className="bg-emerald-600 hover:bg-emerald-600 gap-1">
+        <CheckCircle2 className="h-3 w-3" /> {ar ? "يعمل" : "Operational"}
+      </Badge>
+    );
+  if (status === "warn")
+    return (
+      <Badge className="bg-amber-500 hover:bg-amber-500 text-black gap-1">
+        <AlertTriangle className="h-3 w-3" /> {ar ? "متدهور" : "Degraded"}
+      </Badge>
+    );
+  return (
+    <Badge variant="destructive" className="gap-1">
+      <XCircle className="h-3 w-3" /> {ar ? "متوقف" : "Down"}
+    </Badge>
+  );
 }
 
 function bytes(n: number) {
@@ -67,10 +95,15 @@ function OpsPage() {
       <div className="flex justify-between items-start mb-6">
         <PageHeader
           title={ar ? "العمليات" : "Operations"}
-          description={ar ? "حالة النظام المباشرة وفحوصات الخدمات وسعة المنصة. يُحدَّث تلقائياً كل 30 ثانية." : "Live system health, service checks, and platform capacity. Auto-refreshes every 30 seconds."}
+          description={
+            ar
+              ? "حالة النظام المباشرة وفحوصات الخدمات وسعة المنصة. يُحدَّث تلقائياً كل 30 ثانية."
+              : "Live system health, service checks, and platform capacity. Auto-refreshes every 30 seconds."
+          }
         />
         <Button variant="outline" onClick={() => q.refetch()} disabled={q.isFetching}>
-          <RefreshCw className={`h-4 w-4 me-2 ${q.isFetching ? "animate-spin" : ""}`} /> {ar ? "تحديث" : "Refresh"}
+          <RefreshCw className={`h-4 w-4 me-2 ${q.isFetching ? "animate-spin" : ""}`} />{" "}
+          {ar ? "تحديث" : "Refresh"}
         </Button>
       </div>
 
@@ -81,7 +114,9 @@ function OpsPage() {
       )}
 
       <section className="mb-8">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">{ar ? "الخدمات" : "Services"}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          {ar ? "الخدمات" : "Services"}
+        </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(q.data?.services ?? []).map((s) => {
             const Icon = ICONS[s.name] ?? Database;
@@ -103,11 +138,15 @@ function OpsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">{ar ? "المنصة" : "Platform"}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          {ar ? "المنصة" : "Platform"}
+        </h2>
         <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
           {Object.entries(q.data?.counters ?? {}).map(([k, v]) => (
             <Card key={k} className="p-4">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">{ar ? (COUNTER_LABELS_AR[k] ?? k.replace(/_/g, " ")) : k.replace(/_/g, " ")}</div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                {ar ? (COUNTER_LABELS_AR[k] ?? k.replace(/_/g, " ")) : k.replace(/_/g, " ")}
+              </div>
               <div className="text-2xl font-semibold mt-1">{v as number}</div>
             </Card>
           ))}
@@ -115,14 +154,31 @@ function OpsPage() {
       </section>
 
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">{ar ? "التخزين" : "Storage"}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          {ar ? "التخزين" : "Storage"}
+        </h2>
         <Card className="p-4 grid grid-cols-2 gap-6 max-w-md">
-          <div><div className="text-xs uppercase tracking-wider text-muted-foreground">{ar ? "الملفات" : "Files"}</div><div className="text-2xl font-semibold">{q.data?.storage.files ?? 0}</div></div>
-          <div><div className="text-xs uppercase tracking-wider text-muted-foreground">{ar ? "الحجم" : "Size"}</div><div className="text-2xl font-semibold">{bytes(q.data?.storage.bytes ?? 0)}</div></div>
+          <div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">
+              {ar ? "الملفات" : "Files"}
+            </div>
+            <div className="text-2xl font-semibold">{q.data?.storage.files ?? 0}</div>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">
+              {ar ? "الحجم" : "Size"}
+            </div>
+            <div className="text-2xl font-semibold">{bytes(q.data?.storage.bytes ?? 0)}</div>
+          </div>
         </Card>
       </section>
 
-      {q.data?.captured_at && <p className="text-xs text-muted-foreground mt-6">{ar ? "آخر فحص" : "Last check"}: {new Date(q.data.captured_at).toLocaleString(ar ? "ar" : "en")}</p>}
+      {q.data?.captured_at && (
+        <p className="text-xs text-muted-foreground mt-6">
+          {ar ? "آخر فحص" : "Last check"}:{" "}
+          {new Date(q.data.captured_at).toLocaleString(ar ? "ar" : "en")}
+        </p>
+      )}
     </div>
   );
 }

@@ -2,7 +2,10 @@
 // Simple fixed-window: allow N events per key per minute.
 // Callers derive `key` from IP + endpoint or email + endpoint.
 
-export async function checkRateLimit(key: string, limit = 5): Promise<{ allowed: boolean; retryAfter: number; count: number }> {
+export async function checkRateLimit(
+  key: string,
+  limit = 5,
+): Promise<{ allowed: boolean; retryAfter: number; count: number }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const bucket = new Date();
   bucket.setSeconds(0, 0);
@@ -39,9 +42,10 @@ export async function checkRateLimit(key: string, limit = 5): Promise<{ allowed:
 
 /** Derive a stable client key from a request. */
 export function clientKey(request: Request, scope: string): string {
-  const fwd = request.headers.get("cf-connecting-ip")
-    ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    ?? request.headers.get("x-real-ip")
-    ?? "unknown";
+  const fwd =
+    request.headers.get("cf-connecting-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "unknown";
   return `${scope}:${fwd}`;
 }

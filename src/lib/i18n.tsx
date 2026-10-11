@@ -100,7 +100,10 @@ const dict: Dict = {
   brand: { ar: SITE.brand.ar, en: SITE.brand.en },
   admin_panel: { ar: "لوحة الإدارة", en: "Admin Panel" },
   welcome: { ar: "مرحباً بك", en: "Welcome back" },
-  auth_subtitle: { ar: "سجّل الدخول للوصول إلى لوحة الإدارة", en: "Sign in to access the admin panel" },
+  auth_subtitle: {
+    ar: "سجّل الدخول للوصول إلى لوحة الإدارة",
+    en: "Sign in to access the admin panel",
+  },
   toggle_lang: { ar: "العربية / English", en: "English / العربية" },
   toggle_theme: { ar: "الوضع", en: "Theme" },
   overview: { ar: "نظرة عامة", en: "Overview" },

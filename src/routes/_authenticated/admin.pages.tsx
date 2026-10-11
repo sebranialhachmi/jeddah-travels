@@ -10,7 +10,11 @@ function PagesAdmin() {
     <CmsPageManager
       pageType="generic"
       title={locale === "ar" ? "الصفحات الثابتة" : "Static Pages"}
-      description={locale === "ar" ? "صفحات ثابتة مثل من نحن، الشروط، الخصوصية" : "Static pages such as About, Terms, Privacy."}
+      description={
+        locale === "ar"
+          ? "صفحات ثابتة مثل من نحن، الشروط، الخصوصية"
+          : "Static pages such as About, Terms, Privacy."
+      }
       publicPathPrefix="/p"
     />
   );

@@ -36,7 +36,7 @@ export function PublicHeader() {
     { path: "", label: locale === "ar" ? "الرئيسية" : "Home" },
     { path: "/services", label: locale === "ar" ? "الخدمات" : "Services" },
     { path: "/fleet", label: locale === "ar" ? "الأسطول" : "Fleet" },
-    
+
     { path: "/blog", label: locale === "ar" ? "المدونة" : "Journal" },
     { path: "/about", label: locale === "ar" ? "من نحن" : "About" },
     { path: "/contact", label: locale === "ar" ? "تواصل" : "Contact" },
@@ -50,11 +50,15 @@ export function PublicHeader() {
         "sticky top-0 z-40 transition-all duration-300",
         scrolled
           ? "border-b border-border/60 bg-background/85 backdrop-blur-xl shadow-elegant"
-          : "bg-transparent"
+          : "bg-transparent",
       )}
     >
       <div className="container-tight flex h-20 items-center justify-between gap-4">
-        <Link to={localized("")} className="flex items-center gap-3 group" aria-label={SITE.brand[locale]}>
+        <Link
+          to={localized("")}
+          className="flex items-center gap-3 group"
+          aria-label={SITE.brand[locale]}
+        >
           <img
             src={SITE.logo}
             alt={SITE.brand[locale]}
@@ -64,7 +68,9 @@ export function PublicHeader() {
           />
           <div className="hidden sm:flex flex-col leading-tight">
             <span className="font-display text-lg tracking-tight">{SITE.brand[locale]}</span>
-            <span className="text-[11px] tracking-[0.02em] text-muted-foreground" dir="rtl">تاكسي من مطار جدة إلى مكة المكرمة</span>
+            <span className="text-[11px] tracking-[0.02em] text-muted-foreground" dir="rtl">
+              تاكسي من مطار جدة إلى مكة المكرمة
+            </span>
           </div>
         </Link>
 
@@ -74,7 +80,9 @@ export function PublicHeader() {
               key={n.path || "home"}
               to={localized(n.path)}
               className="relative px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              activeProps={{ className: "relative px-3 py-2 text-sm font-semibold text-foreground" }}
+              activeProps={{
+                className: "relative px-3 py-2 text-sm font-semibold text-foreground",
+              }}
               activeOptions={{ exact: n.path === "" }}
             >
               {n.label}
@@ -90,7 +98,9 @@ export function PublicHeader() {
             aria-label={otherLocale === "en" ? "Switch to English" : "التبديل للعربية"}
             className="rounded-full gap-1.5"
             onClick={() => {
-              try { window.localStorage.setItem("locale", otherLocale); } catch {}
+              try {
+                window.localStorage.setItem("locale", otherLocale);
+              } catch {}
             }}
           >
             <Link to={langSwitchHref} hrefLang={otherLocale} rel="alternate">
@@ -100,7 +110,13 @@ export function PublicHeader() {
               </span>
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme" className="rounded-full">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggle}
+            aria-label="Toggle theme"
+            className="rounded-full"
+          >
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           <Button asChild size="sm" variant="ghost" className="hidden md:inline-flex rounded-full">
@@ -114,10 +130,17 @@ export function PublicHeader() {
             className="hidden md:inline-flex rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-elegant"
           >
             <a href={waHref()} target="_blank" rel="noopener">
-              <MessageCircle className="h-4 w-4 me-2" /> {locale === "ar" ? "احجز الآن" : "Book now"}
+              <MessageCircle className="h-4 w-4 me-2" />{" "}
+              {locale === "ar" ? "احجز الآن" : "Book now"}
             </a>
           </Button>
-          <Button variant="ghost" size="icon" className="lg:hidden rounded-full" onClick={() => setOpen(!open)} aria-label="Menu">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden rounded-full"
+            onClick={() => setOpen(!open)}
+            aria-label="Menu"
+          >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
@@ -138,9 +161,11 @@ export function PublicHeader() {
             ))}
             <Link
               to={langSwitchHref}
-              onClick={() => { 
-                try { window.localStorage.setItem("locale", otherLocale); } catch {} 
-                setOpen(false); 
+              onClick={() => {
+                try {
+                  window.localStorage.setItem("locale", otherLocale);
+                } catch {}
+                setOpen(false);
               }}
               className="rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted flex items-center gap-2"
               hrefLang={otherLocale}
@@ -150,10 +175,14 @@ export function PublicHeader() {
             </Link>
             <div className="flex gap-2 mt-3">
               <Button asChild variant="outline" className="flex-1 rounded-full">
-                <a href={telHref}><Phone className="h-4 w-4 me-2" /> {locale === "ar" ? "اتصل" : "Call"}</a>
+                <a href={telHref}>
+                  <Phone className="h-4 w-4 me-2" /> {locale === "ar" ? "اتصل" : "Call"}
+                </a>
               </Button>
               <Button asChild className="flex-1 rounded-full bg-primary text-primary-foreground">
-                <a href={waHref()} target="_blank" rel="noopener"><MessageCircle className="h-4 w-4 me-2" /> WhatsApp</a>
+                <a href={waHref()} target="_blank" rel="noopener">
+                  <MessageCircle className="h-4 w-4 me-2" /> WhatsApp
+                </a>
               </Button>
             </div>
           </nav>

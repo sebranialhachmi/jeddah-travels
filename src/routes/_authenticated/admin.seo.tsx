@@ -17,7 +17,9 @@ function Metric({ label, value, warn }: { label: string; value: number; warn?: b
   return (
     <Card className="p-4">
       <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className={`mt-2 text-3xl font-semibold ${warn && value > 0 ? "text-destructive" : ""}`}>{value}</div>
+      <div className={`mt-2 text-3xl font-semibold ${warn && value > 0 ? "text-destructive" : ""}`}>
+        {value}
+      </div>
     </Card>
   );
 }
@@ -38,7 +40,11 @@ function SeoManager() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-serif text-3xl">{ar ? "مدير السيو" : "SEO Manager"}</h1>
-          <p className="text-sm text-muted-foreground">{ar ? "تدقيق البيانات الوصفية، كشف المكرر، الروابط المكسورة، والتحقق من الروابط الدائمة." : "Audit metadata, detect duplicates, find broken links, validate slugs."}</p>
+          <p className="text-sm text-muted-foreground">
+            {ar
+              ? "تدقيق البيانات الوصفية، كشف المكرر، الروابط المكسورة، والتحقق من الروابط الدائمة."
+              : "Audit metadata, detect duplicates, find broken links, validate slugs."}
+          </p>
         </div>
         <Button variant="outline" onClick={() => refetch()} disabled={isFetching}>
           <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
@@ -46,7 +52,11 @@ function SeoManager() {
         </Button>
       </div>
 
-      {isLoading && <p className="text-sm text-muted-foreground">{ar ? "جارٍ تشغيل التدقيق…" : "Running audit…"}</p>}
+      {isLoading && (
+        <p className="text-sm text-muted-foreground">
+          {ar ? "جارٍ تشغيل التدقيق…" : "Running audit…"}
+        </p>
+      )}
 
       {c && (
         <>
@@ -54,22 +64,59 @@ function SeoManager() {
             <Metric label={ar ? "صفحات المحتوى" : "CMS Pages"} value={c.pages} />
             <Metric label={ar ? "مقالات المدونة" : "Blog Posts"} value={c.posts} />
             <Metric label={ar ? "عناوين مفقودة" : "Missing Title"} value={c.missingTitle} warn />
-            <Metric label={ar ? "وصف مفقود" : "Missing Description"} value={c.missingDescription} warn />
+            <Metric
+              label={ar ? "وصف مفقود" : "Missing Description"}
+              value={c.missingDescription}
+              warn
+            />
             <Metric label={ar ? "وصف قصير" : "Short Description"} value={c.shortDescription} warn />
             <Metric label={ar ? "عنوان طويل (>70)" : "Long Title (>70)"} value={c.longTitle} warn />
-            <Metric label={ar ? "صورة OG مفقودة" : "Missing OG Image"} value={c.missingImage} warn />
+            <Metric
+              label={ar ? "صورة OG مفقودة" : "Missing OG Image"}
+              value={c.missingImage}
+              warn
+            />
             <Metric label={ar ? "رابط دائم غير صالح" : "Invalid Slug"} value={c.invalidSlug} warn />
-            <Metric label={ar ? "عناوين مكررة" : "Duplicate Titles"} value={c.duplicateTitles} warn />
-            <Metric label={ar ? "أوصاف مكررة" : "Duplicate Descriptions"} value={c.duplicateDescriptions} warn />
-            <Metric label={ar ? "روابط داخلية مكسورة" : "Broken Internal Links"} value={c.brokenLinks} warn />
+            <Metric
+              label={ar ? "عناوين مكررة" : "Duplicate Titles"}
+              value={c.duplicateTitles}
+              warn
+            />
+            <Metric
+              label={ar ? "أوصاف مكررة" : "Duplicate Descriptions"}
+              value={c.duplicateDescriptions}
+              warn
+            />
+            <Metric
+              label={ar ? "روابط داخلية مكسورة" : "Broken Internal Links"}
+              value={c.brokenLinks}
+              warn
+            />
           </div>
 
-          <IssueList title={ar ? "عنوان الميتا مفقود" : "Missing meta title"} rows={data.missingTitle} />
-          <IssueList title={ar ? "وصف الميتا مفقود" : "Missing meta description"} rows={data.missingDescription} />
-          <IssueList title={ar ? "وصف الميتا قصير جداً (<60 حرفاً)" : "Meta description too short (<60 chars)"} rows={data.shortDescription} />
-          <IssueList title={ar ? "عنوان الميتا طويل جداً (>70 حرفاً)" : "Meta title too long (>70 chars)"} rows={data.longTitle} />
+          <IssueList
+            title={ar ? "عنوان الميتا مفقود" : "Missing meta title"}
+            rows={data.missingTitle}
+          />
+          <IssueList
+            title={ar ? "وصف الميتا مفقود" : "Missing meta description"}
+            rows={data.missingDescription}
+          />
+          <IssueList
+            title={
+              ar ? "وصف الميتا قصير جداً (<60 حرفاً)" : "Meta description too short (<60 chars)"
+            }
+            rows={data.shortDescription}
+          />
+          <IssueList
+            title={ar ? "عنوان الميتا طويل جداً (>70 حرفاً)" : "Meta title too long (>70 chars)"}
+            rows={data.longTitle}
+          />
           <IssueList title={ar ? "صورة OG مفقودة" : "Missing OG image"} rows={data.missingImage} />
-          <IssueList title={ar ? "تنسيق الرابط الدائم غير صالح" : "Invalid slug format"} rows={data.invalidSlug} />
+          <IssueList
+            title={ar ? "تنسيق الرابط الدائم غير صالح" : "Invalid slug format"}
+            rows={data.invalidSlug}
+          />
 
           {data.duplicateTitles.length > 0 && (
             <Card className="p-4">
@@ -79,7 +126,11 @@ function SeoManager() {
                   <li key={i}>
                     <span className="font-medium">"{d.title}"</span>
                     <ul className="ml-4 mt-1 list-disc text-muted-foreground">
-                      {d.rows.map((r) => <li key={`${r.entity}-${r.id}`}>{r.label} ({r.slug})</li>)}
+                      {d.rows.map((r) => (
+                        <li key={`${r.entity}-${r.id}`}>
+                          {r.label} ({r.slug})
+                        </li>
+                      ))}
                     </ul>
                   </li>
                 ))}
@@ -89,13 +140,21 @@ function SeoManager() {
 
           {data.duplicateDescriptions.length > 0 && (
             <Card className="p-4">
-              <h2 className="mb-3 font-semibold">{ar ? "أوصاف مكررة" : "Duplicate descriptions"}</h2>
+              <h2 className="mb-3 font-semibold">
+                {ar ? "أوصاف مكررة" : "Duplicate descriptions"}
+              </h2>
               <ul className="space-y-2 text-sm">
                 {data.duplicateDescriptions.map((d, i) => (
                   <li key={i}>
-                    <span className="line-clamp-1 font-medium">"{d.description.slice(0, 100)}…"</span>
+                    <span className="line-clamp-1 font-medium">
+                      "{d.description.slice(0, 100)}…"
+                    </span>
                     <ul className="ml-4 mt-1 list-disc text-muted-foreground">
-                      {d.rows.map((r) => <li key={`${r.entity}-${r.id}`}>{r.label} ({r.slug})</li>)}
+                      {d.rows.map((r) => (
+                        <li key={`${r.entity}-${r.id}`}>
+                          {r.label} ({r.slug})
+                        </li>
+                      ))}
                     </ul>
                   </li>
                 ))}
@@ -105,11 +164,16 @@ function SeoManager() {
 
           {data.brokenLinks.length > 0 && (
             <Card className="p-4">
-              <h2 className="mb-3 flex items-center gap-2 font-semibold"><AlertTriangle className="h-4 w-4 text-destructive" /> {ar ? "روابط داخلية مكسورة" : "Broken internal links"}</h2>
+              <h2 className="mb-3 flex items-center gap-2 font-semibold">
+                <AlertTriangle className="h-4 w-4 text-destructive" />{" "}
+                {ar ? "روابط داخلية مكسورة" : "Broken internal links"}
+              </h2>
               <ul className="space-y-1 text-sm">
                 {data.brokenLinks.map((b, i) => (
                   <li key={i} className="flex items-center justify-between border-b py-1">
-                    <span className="text-muted-foreground">{ar ? "من" : "from"} <code>{b.pageSlug}</code></span>
+                    <span className="text-muted-foreground">
+                      {ar ? "من" : "from"} <code>{b.pageSlug}</code>
+                    </span>
                     <code className="text-destructive">{b.href}</code>
                   </li>
                 ))}
@@ -129,7 +193,13 @@ function SeoManager() {
   );
 }
 
-function IssueList({ title, rows }: { title: string; rows: { entity: string; id: string; slug: string; label: string }[] }) {
+function IssueList({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: { entity: string; id: string; slug: string; label: string }[];
+}) {
   if (!rows.length) return null;
   return (
     <Card className="p-4">
@@ -147,4 +217,3 @@ function IssueList({ title, rows }: { title: string; rows: { entity: string; id:
     </Card>
   );
 }
-

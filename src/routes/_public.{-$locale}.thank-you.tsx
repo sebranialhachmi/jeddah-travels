@@ -12,7 +12,10 @@ export const Route = createFileRoute("/_public/{-$locale}/thank-you")({
     return {
       meta: [
         { title },
-        { name: "description", content: ar ? "استلمنا طلب حجزك." : "We received your booking request." },
+        {
+          name: "description",
+          content: ar ? "استلمنا طلب حجزك." : "We received your booking request.",
+        },
         { name: "robots", content: "noindex,follow" },
       ],
       links: [],
@@ -40,7 +43,11 @@ function ThankYouPage() {
         </p>
         <div className="flex flex-wrap justify-center gap-3 pt-4">
           <Button asChild size="lg" className="rounded-full">
-            <a href={waLink(ar ? "متابعة الحجز" : "Following up on my booking")} target="_blank" rel="noopener">
+            <a
+              href={waLink(ar ? "متابعة الحجز" : "Following up on my booking")}
+              target="_blank"
+              rel="noopener"
+            >
               <MessageCircle className="h-5 w-5 me-2" /> {ar ? "افتح واتساب" : "Open WhatsApp"}
             </a>
           </Button>

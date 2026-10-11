@@ -19,10 +19,14 @@ export const Route = createFileRoute("/_public/{-$locale}/routes/")({
     const locale = params.locale ?? "ar";
     const path = `/${locale}/routes`;
     const url = absoluteUrl(path);
-    const title = brandTitle(locale === "ar" ? "المسارات" : "Popular Routes", locale === "ar" ? "ar" : "en");
-    const description = locale === "ar"
-      ? "أشهر مسارات النقل الفاخر: جدة — مكة — المدينة — الطائف بأسعار شفافة."
-      : "Popular chauffeur routes across Jeddah, Makkah, Madinah and Taif with transparent pricing.";
+    const title = brandTitle(
+      locale === "ar" ? "المسارات" : "Popular Routes",
+      locale === "ar" ? "ar" : "en",
+    );
+    const description =
+      locale === "ar"
+        ? "أشهر مسارات النقل الفاخر: جدة — مكة — المدينة — الطائف بأسعار شفافة."
+        : "Popular chauffeur routes across Jeddah, Makkah, Madinah and Taif with transparent pricing.";
     return {
       meta: [
         { title },
@@ -77,31 +81,38 @@ function RoutesIndex() {
         </p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {routes.filter((r: any) => !isConsolidatedDuplicate(`/routes/${r.slug}`)).map((r: any, i: number) => (
-            <Link key={r.id} to="/{-$locale}/routes/$slug" params={(prev: Record<string, string>) => ({ ...prev, slug: r.slug })} className="group">
-              <article className="hover-lift h-full flex flex-col rounded-2xl border border-border bg-card p-7">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground group-hover:bg-gold group-hover:text-primary transition-colors">
-                    <RouteIcon className="h-5 w-5" />
+          {routes
+            .filter((r: any) => !isConsolidatedDuplicate(`/routes/${r.slug}`))
+            .map((r: any, i: number) => (
+              <Link
+                key={r.id}
+                to="/{-$locale}/routes/$slug"
+                params={(prev: Record<string, string>) => ({ ...prev, slug: r.slug })}
+                className="group"
+              >
+                <article className="hover-lift h-full flex flex-col rounded-2xl border border-border bg-card p-7">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground group-hover:bg-gold group-hover:text-primary transition-colors">
+                      <RouteIcon className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                      0{i + 1}
+                    </span>
                   </div>
-                  <span className="text-xs uppercase tracking-wider text-muted-foreground">
-                    0{i + 1}
+                  <div className="text-xs uppercase tracking-wider text-gold mb-2">
+                    {ar ? "مسار" : "Route"}
+                  </div>
+                  <h2 className="font-display text-2xl mb-3">{ar ? r.title_ar : r.title_en}</h2>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
+                    {ar ? r.subtitle_ar : r.subtitle_en}
+                  </p>
+                  <span className="inline-flex items-center gap-2 text-sm font-medium">
+                    {ar ? "تفاصيل" : "Discover"}{" "}
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                   </span>
-                </div>
-                <div className="text-xs uppercase tracking-wider text-gold mb-2">
-                  {ar ? "مسار" : "Route"}
-                </div>
-                <h2 className="font-display text-2xl mb-3">{ar ? r.title_ar : r.title_en}</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
-                  {ar ? r.subtitle_ar : r.subtitle_en}
-                </p>
-                <span className="inline-flex items-center gap-2 text-sm font-medium">
-                  {ar ? "تفاصيل" : "Discover"}{" "}
-                  <ArrowRight className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
-                </span>
-              </article>
-            </Link>
-          ))}
+                </article>
+              </Link>
+            ))}
         </div>
       )}
     </section>

@@ -67,9 +67,13 @@ export function ContentDetail(props: {
             const isLast = i === props.breadcrumbs.length - 1;
             return (
               <li key={i} className="flex items-center gap-1">
-                {i > 0 && <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden="true" />}
+                {i > 0 && (
+                  <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden="true" />
+                )}
                 {isLast ? (
-                  <span aria-current="page" className="text-foreground">{b.name}</span>
+                  <span aria-current="page" className="text-foreground">
+                    {b.name}
+                  </span>
                 ) : (
                   <LocalizedLink to={b.to} locale={locale} className="hover:text-foreground">
                     {b.name}
@@ -123,9 +127,7 @@ export function ContentDetail(props: {
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }}
             />
           ) : (
-            <div className="leading-relaxed text-muted-foreground whitespace-pre-line">
-              {body}
-            </div>
+            <div className="leading-relaxed text-muted-foreground whitespace-pre-line">{body}</div>
           ))}
         <div className="space-y-4">
           <h2 className="text-2xl font-bold">{sections.headings.overview}</h2>
@@ -202,12 +204,14 @@ export function ContentDetail(props: {
           <div className="flex flex-wrap gap-3 justify-center">
             <Button asChild className="bg-green-600 hover:bg-green-700">
               <a href={waLink(bookText)} target="_blank" rel="noopener">
-                <MessageCircle className="h-4 w-4 me-2" />WhatsApp
+                <MessageCircle className="h-4 w-4 me-2" />
+                WhatsApp
               </a>
             </Button>
             <Button asChild variant="outline">
               <a href={telLink()}>
-                <Phone className="h-4 w-4 me-2" />{SITE.phone}
+                <Phone className="h-4 w-4 me-2" />
+                {SITE.phone}
               </a>
             </Button>
           </div>
@@ -217,9 +221,7 @@ export function ContentDetail(props: {
       {/* Related */}
       {props.related.length > 0 && (
         <section className="container mx-auto px-4 pb-20 max-w-6xl">
-          <h2 className="text-2xl font-bold mb-6">
-            {ar ? "محتوى ذو صلة" : "Related"}
-          </h2>
+          <h2 className="text-2xl font-bold mb-6">{ar ? "محتوى ذو صلة" : "Related"}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {props.related.map((r) => (
               <RelatedCard

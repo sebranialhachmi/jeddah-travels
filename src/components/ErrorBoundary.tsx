@@ -18,7 +18,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error("[ErrorBoundary]", error, info);
-    reportLovableError(error, { boundary: "app_error_boundary", componentStack: info.componentStack ?? undefined });
+    reportLovableError(error, {
+      boundary: "app_error_boundary",
+      componentStack: info.componentStack ?? undefined,
+    });
   }
 
   reset = () => this.setState({ error: null });
@@ -42,10 +45,7 @@ export class ErrorBoundary extends Component<Props, State> {
               >
                 Try again
               </button>
-              <a
-                href="/"
-                className="rounded-md border px-4 py-2 text-sm font-medium"
-              >
+              <a href="/" className="rounded-md border px-4 py-2 text-sm font-medium">
                 Home
               </a>
             </div>

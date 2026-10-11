@@ -1,7 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { listFaqs } from "@/lib/public.functions";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useI18n } from "@/lib/i18n";
 import { SITE } from "@/lib/site-info";
 
@@ -27,18 +32,23 @@ export const Route = createFileRoute("/_public/{-$locale}/faq")({
         { name: "twitter:description", content: description },
       ],
       links: [],
-      scripts: loaderData ? [{
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org", "@type": "FAQPage",
-          inLanguage: ar ? "ar" : "en",
-          mainEntity: loaderData.map((f) => ({
-            "@type": "Question",
-            name: ar ? f.question_ar : f.question_en,
-            acceptedAnswer: { "@type": "Answer", text: ar ? f.answer_ar : f.answer_en },
-          })),
-        }),
-      }] : undefined,
+      scripts: loaderData
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                inLanguage: ar ? "ar" : "en",
+                mainEntity: loaderData.map((f) => ({
+                  "@type": "Question",
+                  name: ar ? f.question_ar : f.question_en,
+                  acceptedAnswer: { "@type": "Answer", text: ar ? f.answer_ar : f.answer_en },
+                })),
+              }),
+            },
+          ]
+        : undefined,
     };
   },
   component: FAQ,
@@ -51,15 +61,30 @@ function FAQ() {
   return (
     <section className="container-tight py-16 md:py-24 max-w-3xl">
       <div className="space-y-5 mb-12">
-        <span className="eyebrow"><span className="h-px w-8 bg-gold" />FAQ</span>
-        <h1 className="font-display text-5xl md:text-6xl leading-tight">{ar ? "أسئلة متكررة" : "Common questions"}</h1>
-        <p className="text-lg text-muted-foreground">{ar ? "كل ما تحتاج معرفته قبل الحجز." : "Everything you need to know before booking."}</p>
+        <span className="eyebrow">
+          <span className="h-px w-8 bg-gold" />
+          FAQ
+        </span>
+        <h1 className="font-display text-5xl md:text-6xl leading-tight">
+          {ar ? "أسئلة متكررة" : "Common questions"}
+        </h1>
+        <p className="text-lg text-muted-foreground">
+          {ar ? "كل ما تحتاج معرفته قبل الحجز." : "Everything you need to know before booking."}
+        </p>
       </div>
-      <Accordion type="single" collapsible className="rounded-2xl border border-border bg-card divide-y divide-border">
+      <Accordion
+        type="single"
+        collapsible
+        className="rounded-2xl border border-border bg-card divide-y divide-border"
+      >
         {data.map((f) => (
           <AccordionItem key={f.id} value={f.id} className="border-b-0 px-6">
-            <AccordionTrigger className="text-start font-medium text-base py-5">{ar ? f.question_ar : f.question_en}</AccordionTrigger>
-            <AccordionContent className="text-muted-foreground leading-relaxed pb-5">{ar ? f.answer_ar : f.answer_en}</AccordionContent>
+            <AccordionTrigger className="text-start font-medium text-base py-5">
+              {ar ? f.question_ar : f.question_en}
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed pb-5">
+              {ar ? f.answer_ar : f.answer_en}
+            </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

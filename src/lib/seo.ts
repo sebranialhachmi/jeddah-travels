@@ -30,11 +30,14 @@ export function localBusinessJsonLd() {
       { "@type": "City", name: "Madinah" },
       { "@type": "City", name: "Taif" },
     ],
-    openingHoursSpecification: [{
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-      opens: "00:00", closes: "23:59",
-    }],
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        opens: "00:00",
+        closes: "23:59",
+      },
+    ],
     sameAs: Object.values(SITE.socials).filter(Boolean),
   };
 }
@@ -145,8 +148,13 @@ export function breadcrumbJsonLd(trail: { name: string; url: string }[]) {
 }
 
 export function articleJsonLd(p: {
-  title: string; description?: string; image?: string;
-  datePublished?: string; dateModified?: string; author?: string; url: string;
+  title: string;
+  description?: string;
+  image?: string;
+  datePublished?: string;
+  dateModified?: string;
+  author?: string;
+  url: string;
 }) {
   return {
     "@context": "https://schema.org",
@@ -178,7 +186,12 @@ export function faqPageJsonLd(items: { q: string; a: string }[]) {
   };
 }
 
-export function serviceJsonLd(s: { name: string; description?: string; areaServed?: string; url: string }) {
+export function serviceJsonLd(s: {
+  name: string;
+  description?: string;
+  areaServed?: string;
+  url: string;
+}) {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -190,7 +203,13 @@ export function serviceJsonLd(s: { name: string; description?: string; areaServe
   };
 }
 
-export function vehicleJsonLd(v: { name: string; description?: string; image?: string; brand?: string; seatingCapacity?: number }) {
+export function vehicleJsonLd(v: {
+  name: string;
+  description?: string;
+  image?: string;
+  brand?: string;
+  seatingCapacity?: number;
+}) {
   return {
     "@context": "https://schema.org",
     "@type": "Vehicle",
@@ -205,13 +224,20 @@ export function vehicleJsonLd(v: { name: string; description?: string; image?: s
 // Build a full <head> block from a CMS page's SEO fields.
 export function buildCmsHead(p: {
   slug: string;
-  title_en: string; title_ar: string;
-  meta_title?: string | null; meta_description?: string | null;
-  subtitle_en?: string | null; subtitle_ar?: string | null;
-  og_title?: string | null; og_description?: string | null;
-  og_image_url?: string | null; twitter_card?: string | null;
-  robots?: string | null; canonical_url?: string | null;
-  keywords?: string[] | null; schema_type?: string | null;
+  title_en: string;
+  title_ar: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  subtitle_en?: string | null;
+  subtitle_ar?: string | null;
+  og_title?: string | null;
+  og_description?: string | null;
+  og_image_url?: string | null;
+  twitter_card?: string | null;
+  robots?: string | null;
+  canonical_url?: string | null;
+  keywords?: string[] | null;
+  schema_type?: string | null;
   custom_schema?: unknown;
 }) {
   const title = p.meta_title || p.title_en;
@@ -230,7 +256,11 @@ export function buildCmsHead(p: {
     { name: "twitter:description", content: p.og_description || desc },
   ];
   if (p.keywords?.length) meta.push({ name: "keywords", content: p.keywords.join(", ") });
-  if (p.og_image_url) meta.push({ property: "og:image", content: p.og_image_url }, { name: "twitter:image", content: p.og_image_url });
+  if (p.og_image_url)
+    meta.push(
+      { property: "og:image", content: p.og_image_url },
+      { name: "twitter:image", content: p.og_image_url },
+    );
   const scripts: any[] = [];
   if (p.schema_type) {
     scripts.push({
@@ -239,8 +269,8 @@ export function buildCmsHead(p: {
         p.schema_type === "Service"
           ? serviceJsonLd({ name: title, description: desc, url: `/${p.slug}` })
           : p.schema_type === "FAQPage"
-          ? { "@context": "https://schema.org", "@type": "FAQPage", name: title }
-          : localBusinessJsonLd(),
+            ? { "@context": "https://schema.org", "@type": "FAQPage", name: title }
+            : localBusinessJsonLd(),
       ),
     });
   }

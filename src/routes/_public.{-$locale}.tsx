@@ -5,13 +5,7 @@ import { WhatsAppFab } from "@/components/WhatsAppFab";
 import { CookieConsent } from "@/components/CookieConsent";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { SITE } from "@/lib/site-info";
-import {
-  isLocale,
-  LOCALES,
-  DEFAULT_LOCALE,
-  withLocale,
-  type Locale,
-} from "@/lib/i18n";
+import { isLocale, LOCALES, DEFAULT_LOCALE, withLocale, type Locale } from "@/lib/i18n";
 import { resolveRedirect } from "@/lib/seo-tools.functions";
 import { CANONICAL_REDIRECTS } from "@/lib/canonical-redirects";
 import { getCmsPage } from "@/lib/public.functions";
@@ -31,7 +25,10 @@ export const Route = createFileRoute("/_public/{-$locale}")({
   beforeLoad: async ({ params, location }) => {
     // Static files (images, fonts, uploaded assets) must never go through the
     // locale/legacy redirect stack — prefixing them with /ar broke every image.
-    if (/\.[a-z0-9]{2,5}$/i.test(location.pathname) || /^\/(__l5e|assets|fleet)\//.test(location.pathname)) {
+    if (
+      /\.[a-z0-9]{2,5}$/i.test(location.pathname) ||
+      /^\/(__l5e|assets|fleet)\//.test(location.pathname)
+    ) {
       return;
     }
 
@@ -55,7 +52,6 @@ export const Route = createFileRoute("/_public/{-$locale}")({
 
     // 1) Redirect manager: check DB-managed 301/302 redirects (locale-agnostic path).
     try {
-
       const rd = await resolveRedirect({ data: { path: localeLess } });
       if (rd?.destination_path) {
         throw redirect({ href: rd.destination_path, replace: true });
@@ -80,22 +76,28 @@ export const Route = createFileRoute("/_public/{-$locale}")({
       if (pm) {
         try {
           const page: any = await getCmsPage({ data: { slug: pm[1] } });
-          const pre = ({ city: "/cities", airport: "/airports", service: "/services", route_page: "/routes" } as Record<string, string>)[page?.page_type];
+          const pre = (
+            {
+              city: "/cities",
+              airport: "/airports",
+              service: "/services",
+              route_page: "/routes",
+            } as Record<string, string>
+          )[page?.page_type];
           if (pre) guess = `${pre}/${pm[1]}`;
-        } catch { /* fall back to /p/ */ }
+        } catch {
+          /* fall back to /p/ */
+        }
       }
       // Resolve through the consolidation maps now so the visitor lands on the
       // final page in ONE hop (no 301 → 301 chains).
-      const target =
-        LEGACY_REDIRECTS[guess] ?? CANONICAL_REDIRECTS[guess] ?? guess;
+      const target = LEGACY_REDIRECTS[guess] ?? CANONICAL_REDIRECTS[guess] ?? guess;
       throw redirect({
         href: withLocale(DEFAULT_LOCALE, target),
         replace: true,
         statusCode: 301,
       });
     }
-
-
 
     // 3) Missing prefix → always redirect to Arabic. Do not infer from
     //    browser language, Accept-Language, cookies, localStorage, or cache.
@@ -105,16 +107,24 @@ export const Route = createFileRoute("/_public/{-$locale}")({
       if (pm) {
         try {
           const page: any = await getCmsPage({ data: { slug: pm[1] } });
-          const pre = ({ city: "/cities", airport: "/airports", service: "/services", route_page: "/routes" } as Record<string, string>)[page?.page_type];
+          const pre = (
+            {
+              city: "/cities",
+              airport: "/airports",
+              service: "/services",
+              route_page: "/routes",
+            } as Record<string, string>
+          )[page?.page_type];
           if (pre) path = CANONICAL_REDIRECTS[`${pre}/${pm[1]}`] ?? `${pre}/${pm[1]}`;
-        } catch { /* keep /p/ path */ }
+        } catch {
+          /* keep /p/ path */
+        }
       }
       const target = withLocale(DEFAULT_LOCALE, path);
       // Use `href` (not `to`) so literal braces/odd characters in the path are
       // not parsed as route params — that produced a self-redirect loop.
       throw redirect({ href: target, replace: true, statusCode: 301 });
     }
-
   },
   loader: ({ location }) => {
     return { pathname: location.pathname };

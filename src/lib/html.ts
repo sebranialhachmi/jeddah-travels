@@ -2,11 +2,41 @@
 // Used both when saving (admin) and when rendering (SSR public page).
 
 const ALLOWED_TAGS = new Set([
-  "p", "br", "hr", "strong", "b", "em", "i", "u", "s", "sub", "sup", "code", "pre",
-  "h2", "h3", "h4", "h5", "h6",
-  "ul", "ol", "li", "blockquote",
-  "a", "img", "figure", "figcaption",
-  "table", "thead", "tbody", "tfoot", "tr", "th", "td", "span", "div",
+  "p",
+  "br",
+  "hr",
+  "strong",
+  "b",
+  "em",
+  "i",
+  "u",
+  "s",
+  "sub",
+  "sup",
+  "code",
+  "pre",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "ul",
+  "ol",
+  "li",
+  "blockquote",
+  "a",
+  "img",
+  "figure",
+  "figcaption",
+  "table",
+  "thead",
+  "tbody",
+  "tfoot",
+  "tr",
+  "th",
+  "td",
+  "span",
+  "div",
 ]);
 
 const ALLOWED_ATTRS: Record<string, Set<string>> = {
@@ -18,8 +48,10 @@ const ALLOWED_ATTRS: Record<string, Set<string>> = {
 };
 
 // Blocks that must never survive, including their content.
-const STRIP_WITH_CONTENT = /<(script|style|iframe|object|embed|noscript|form|svg|math)\b[\s\S]*?<\/\1\s*>/gi;
-const SELF_CLOSING_DANGEROUS = /<\/?(script|style|iframe|object|embed|noscript|form|input|button|link|meta|svg|math)\b[^>]*>/gi;
+const STRIP_WITH_CONTENT =
+  /<(script|style|iframe|object|embed|noscript|form|svg|math)\b[\s\S]*?<\/\1\s*>/gi;
+const SELF_CLOSING_DANGEROUS =
+  /<\/?(script|style|iframe|object|embed|noscript|form|input|button|link|meta|svg|math)\b[^>]*>/gi;
 
 function safeUrl(value: string) {
   const v = value.trim();
@@ -69,13 +101,16 @@ export function sanitizeHtml(input: string | null | undefined): string {
   html = html.replace(SELF_CLOSING_DANGEROUS, "");
   html = html.replace(/<h1\b([^>]*)>/gi, "<h2$1>").replace(/<\/h1\s*>/gi, "</h2>");
 
-  html = html.replace(/<\/?([a-zA-Z][-\w]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g, (match, rawTag: string, rawAttrs: string) => {
-    const tag = rawTag.toLowerCase();
-    if (!ALLOWED_TAGS.has(tag)) return "";
-    if (match.startsWith("</")) return `</${tag}>`;
-    const selfClosing = /\/\s*$/.test(rawAttrs);
-    return `<${tag}${cleanAttrs(tag, rawAttrs)}${selfClosing || tag === "br" || tag === "hr" || tag === "img" ? " /" : ""}>`;
-  });
+  html = html.replace(
+    /<\/?([a-zA-Z][-\w]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g,
+    (match, rawTag: string, rawAttrs: string) => {
+      const tag = rawTag.toLowerCase();
+      if (!ALLOWED_TAGS.has(tag)) return "";
+      if (match.startsWith("</")) return `</${tag}>`;
+      const selfClosing = /\/\s*$/.test(rawAttrs);
+      return `<${tag}${cleanAttrs(tag, rawAttrs)}${selfClosing || tag === "br" || tag === "hr" || tag === "img" ? " /" : ""}>`;
+    },
+  );
 
   return html.trim();
 }
@@ -90,7 +125,10 @@ export function plainTextToHtml(text: string | null | undefined) {
   if (!text) return "";
   return text
     .split(/\n{2,}/)
-    .map((block) => `<p>${block.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br />")}</p>`)
+    .map(
+      (block) =>
+        `<p>${block.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br />")}</p>`,
+    )
     .join("\n");
 }
 

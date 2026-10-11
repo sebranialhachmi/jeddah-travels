@@ -20,11 +20,9 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const sb = createClient(
-          process.env.SUPABASE_URL!,
-          process.env.SUPABASE_PUBLISHABLE_KEY!,
-          { auth: { persistSession: false, autoRefreshToken: false } },
-        );
+        const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+          auth: { persistSession: false, autoRefreshToken: false },
+        });
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/about", changefreq: "monthly", priority: "0.7" },
@@ -44,7 +42,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/refund", changefreq: "yearly", priority: "0.3" },
           { path: "/cancellation", changefreq: "yearly", priority: "0.3" },
         ];
-        
+
         // Define core static routes that have physical files in src/routes/_public.{-$locale}.*.tsx
         const staticPublicRoutes = [
           "taxi-jeddah",
@@ -67,7 +65,10 @@ export const Route = createFileRoute("/sitemap.xml")({
         try {
           const [{ data: pages }, { data: posts }, { data: cats }] = await Promise.all([
             sb.from("cms_pages").select("slug,page_type,updated_at").eq("published", true),
-            sb.from("blog_posts").select("slug,updated_at,content_ar,content_en").eq("published", true),
+            sb
+              .from("blog_posts")
+              .select("slug,updated_at,content_ar,content_en")
+              .eq("published", true),
             sb.from("vehicle_categories").select("code,created_at").eq("is_active", true),
           ]);
           const typeToPrefix: Record<string, string> = {
@@ -88,11 +89,21 @@ export const Route = createFileRoute("/sitemap.xml")({
           for (const p of posts ?? []) {
             // Skip thin posts entirely: if neither language has enough content,
             // the URL should not be advertised to search engines.
-            if (!isIndexable((p as any).content_ar) && !isIndexable((p as any).content_en)) continue;
-            entries.push({ path: `/blog/${p.slug}`, lastmod: p.updated_at?.slice(0, 10), changefreq: "monthly", priority: "0.6" });
+            if (!isIndexable((p as any).content_ar) && !isIndexable((p as any).content_en))
+              continue;
+            entries.push({
+              path: `/blog/${p.slug}`,
+              lastmod: p.updated_at?.slice(0, 10),
+              changefreq: "monthly",
+              priority: "0.6",
+            });
           }
           for (const c of cats ?? [])
-            entries.push({ path: `/fleet/${(c as any).code}`, changefreq: "monthly", priority: "0.7" });
+            entries.push({
+              path: `/fleet/${(c as any).code}`,
+              changefreq: "monthly",
+              priority: "0.7",
+            });
         } catch {
           /* Data API unreachable — fall back to the static entries. */
         }

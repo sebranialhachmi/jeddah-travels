@@ -1,11 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Download, FileSpreadsheet, FileText, Printer, ChevronDown } from "lucide-react";
 import { exportData, type Column } from "@/lib/exports";
 import { useHasPermission } from "@/lib/rbac";
 
 export function ExportMenu({
-  filename, rows, columns, title, module,
+  filename,
+  rows,
+  columns,
+  title,
+  module,
 }: {
   filename: string;
   rows: any[];

@@ -5,7 +5,12 @@ import { useTheme } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 import { Moon, Sun, Languages, LogOut, Bell, Search, ExternalLink } from "lucide-react";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "@tanstack/react-router";
@@ -39,20 +44,47 @@ export function Topbar() {
       >
         <Search className="h-4 w-4" />
         <span className="flex-1 text-start">{locale === "ar" ? "بحث سريع…" : "Quick search…"}</span>
-        <kbd className="hidden lg:inline-flex items-center gap-1 rounded border border-border px-1.5 py-0.5 text-[10px] font-mono">⌘K</kbd>
+        <kbd className="hidden lg:inline-flex items-center gap-1 rounded border border-border px-1.5 py-0.5 text-[10px] font-mono">
+          ⌘K
+        </kbd>
       </button>
       <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
       <div className="flex-1 md:hidden" />
-      <Button asChild variant="ghost" size="sm" className="hidden lg:inline-flex rounded-full text-muted-foreground">
-        <a href="/" target="_blank" rel="noopener"><ExternalLink className="h-4 w-4 me-2" />{locale === "ar" ? "الموقع" : "View site"}</a>
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="hidden lg:inline-flex rounded-full text-muted-foreground"
+      >
+        <a href="/" target="_blank" rel="noopener">
+          <ExternalLink className="h-4 w-4 me-2" />
+          {locale === "ar" ? "الموقع" : "View site"}
+        </a>
       </Button>
-      <Button variant="ghost" size="icon" onClick={() => setLocale(locale === "ar" ? "en" : "ar")} title={t("toggle_lang")} className="rounded-full">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setLocale(locale === "ar" ? "en" : "ar")}
+        title={t("toggle_lang")}
+        className="rounded-full"
+      >
         <Languages className="h-4 w-4" />
       </Button>
-      <Button variant="ghost" size="icon" onClick={toggle} className="rounded-full" aria-label="Toggle theme">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggle}
+        className="rounded-full"
+        aria-label="Toggle theme"
+      >
         {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </Button>
-      <Button variant="ghost" size="icon" className="relative rounded-full" aria-label="Notifications">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative rounded-full"
+        aria-label="Notifications"
+      >
         <Bell className="h-4 w-4" />
         <span className="absolute top-1.5 end-1.5 h-1.5 w-1.5 rounded-full bg-gold" />
       </Button>
@@ -60,14 +92,23 @@ export function Topbar() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
             <Avatar className="h-8 w-8 ring-2 ring-gold/40">
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">{(user?.email?.[0] ?? "?").toUpperCase()}</AvatarFallback>
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+                {(user?.email?.[0] ?? "?").toUpperCase()}
+              </AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-56">
-          <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">{user?.email}</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+            {user?.email}
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={async () => { await signOut(); navigate({ to: "/auth" }); }}>
+          <DropdownMenuItem
+            onClick={async () => {
+              await signOut();
+              navigate({ to: "/auth" });
+            }}
+          >
             <LogOut className="me-2 h-4 w-4" /> {t("signout")}
           </DropdownMenuItem>
         </DropdownMenuContent>

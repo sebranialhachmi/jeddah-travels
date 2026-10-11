@@ -26,9 +26,22 @@ export function ActivityTimeline({ entityType, entityId, limit = 100 }: Props) {
     },
   });
 
-  if (q.isLoading) return <div className="space-y-2">{Array.from({length:3}).map((_,i)=><Skeleton key={i} className="h-10 w-full" />)}</div>;
+  if (q.isLoading)
+    return (
+      <div className="space-y-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-10 w-full" />
+        ))}
+      </div>
+    );
   const events = q.data ?? [];
-  if (events.length === 0) return <div className="text-sm text-muted-foreground py-4 flex items-center gap-2"><Clock className="h-4 w-4" />{locale==="ar"?"لا يوجد سجل نشاط":"No activity yet"}</div>;
+  if (events.length === 0)
+    return (
+      <div className="text-sm text-muted-foreground py-4 flex items-center gap-2">
+        <Clock className="h-4 w-4" />
+        {locale === "ar" ? "لا يوجد سجل نشاط" : "No activity yet"}
+      </div>
+    );
 
   return (
     <ol className="relative border-s border-border/60 ms-2 space-y-4 py-2">
@@ -42,12 +55,16 @@ export function ActivityTimeline({ entityType, entityId, limit = 100 }: Props) {
               <p className="text-sm font-medium truncate">{e.message ?? e.event_type}</p>
               {(e.from_value || e.to_value) && e.event_type !== "status_changed" && (
                 <p className="text-xs text-muted-foreground truncate">
-                  {e.from_value && <span>{e.from_value} → </span>}{e.to_value}
+                  {e.from_value && <span>{e.from_value} → </span>}
+                  {e.to_value}
                 </p>
               )}
             </div>
             <time className="shrink-0 text-[10px] uppercase tracking-wider text-muted-foreground">
-              {new Date(e.created_at).toLocaleString(locale === "ar" ? "ar" : "en", { dateStyle: "short", timeStyle: "short" })}
+              {new Date(e.created_at).toLocaleString(locale === "ar" ? "ar" : "en", {
+                dateStyle: "short",
+                timeStyle: "short",
+              })}
             </time>
           </div>
         </li>

@@ -33,7 +33,8 @@ function pickTr(row: any, locale: "ar" | "en") {
 export const Route = createFileRoute("/_public/{-$locale}/fleet/$slug")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(opts(params.slug)),
   head: ({ loaderData, params }) => {
-    if (!loaderData) return { meta: [{ title: "Not found" }, { name: "robots", content: "noindex" }] };
+    if (!loaderData)
+      return { meta: [{ title: "Not found" }, { name: "robots", content: "noindex" }] };
     const row: any = loaderData.row;
     const locale = (params.locale ?? "ar") as "ar" | "en";
     const en = pickTr(row, "en");
@@ -116,7 +117,9 @@ function VehicleDetail() {
           </li>
           <li className="flex items-center gap-1">
             <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden="true" />
-            <span aria-current="page" className="text-foreground">{cur.name}</span>
+            <span aria-current="page" className="text-foreground">
+              {cur.name}
+            </span>
           </li>
         </ol>
       </nav>
@@ -133,13 +136,33 @@ function VehicleDetail() {
           return (
             <div className="mb-8 space-y-3">
               <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border bg-muted">
-                <img src={gallery[0]} alt={alt} width={1600} height={1000} decoding="async" loading="eager" fetchPriority="high" className="h-full w-full object-cover" />
+                <img
+                  src={gallery[0]}
+                  alt={alt}
+                  width={1600}
+                  height={1000}
+                  decoding="async"
+                  loading="eager"
+                  fetchPriority="high"
+                  className="h-full w-full object-cover"
+                />
               </div>
               {gallery.length > 1 && (
                 <div className="grid grid-cols-3 gap-3">
                   {gallery.slice(0, 6).map((src, i) => (
-                    <div key={i} className="relative aspect-[4/3] overflow-hidden rounded-xl border bg-muted">
-                      <img src={src} alt={`${alt} — ${i + 1}`} width={800} height={600} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                    <div
+                      key={i}
+                      className="relative aspect-[4/3] overflow-hidden rounded-xl border bg-muted"
+                    >
+                      <img
+                        src={src}
+                        alt={`${alt} — ${i + 1}`}
+                        width={800}
+                        height={600}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                      />
                     </div>
                   ))}
                 </div>
@@ -157,11 +180,15 @@ function VehicleDetail() {
             <dd className="text-2xl font-bold">{row.seats}</dd>
           </div>
           <div className="rounded-xl border p-4">
-            <dt className="text-xs uppercase text-muted-foreground mb-1">{ar ? "التعرفة الأساسية" : "Base fare"}</dt>
+            <dt className="text-xs uppercase text-muted-foreground mb-1">
+              {ar ? "التعرفة الأساسية" : "Base fare"}
+            </dt>
             <dd className="text-2xl font-bold">{Number(row.base_fare).toFixed(2)}</dd>
           </div>
           <div className="rounded-xl border p-4">
-            <dt className="text-xs uppercase text-muted-foreground mb-1">{ar ? "سعر الكيلومتر" : "Per km"}</dt>
+            <dt className="text-xs uppercase text-muted-foreground mb-1">
+              {ar ? "سعر الكيلومتر" : "Per km"}
+            </dt>
             <dd className="text-2xl font-bold">{Number(row.price_per_km).toFixed(2)}</dd>
           </div>
         </dl>
@@ -175,7 +202,8 @@ function VehicleDetail() {
           </Button>
           <Button asChild variant="outline">
             <a href={telLink()}>
-              <Phone className="h-4 w-4 me-2" />{SITE.phone}
+              <Phone className="h-4 w-4 me-2" />
+              {SITE.phone}
             </a>
           </Button>
         </div>
@@ -184,9 +212,7 @@ function VehicleDetail() {
       <CityLongContent page={`fleet-${data.row.code}`} />
       {data.related.length > 0 && (
         <section className="container mx-auto px-4 pb-20 max-w-6xl">
-          <h2 className="text-2xl font-bold mb-6">
-            {ar ? "مركبات أخرى" : "Other vehicles"}
-          </h2>
+          <h2 className="text-2xl font-bold mb-6">{ar ? "مركبات أخرى" : "Other vehicles"}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {data.related.map((r: any, i: number) => {
               const t = pickTr(r, locale);
@@ -199,7 +225,15 @@ function VehicleDetail() {
                   className="group block rounded-xl border bg-card overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition"
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-muted">
-                    <img src={img} alt={alt} width={800} height={600} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img
+                      src={img}
+                      alt={alt}
+                      width={800}
+                      height={600}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
                   <div className="p-5">
                     <h3 className="font-semibold mb-1 group-hover:text-primary">{t.name}</h3>

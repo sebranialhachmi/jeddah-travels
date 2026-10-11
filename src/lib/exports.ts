@@ -27,13 +27,29 @@ export function exportCsv(filename: string, rows: any[], columns?: Column[]) {
   downloadCsv(filename, rows, columns);
 }
 
-export function exportExcel(filename: string, rows: any[], columns?: Column[], sheetName = "Sheet1") {
+export function exportExcel(
+  filename: string,
+  rows: any[],
+  columns?: Column[],
+  sheetName = "Sheet1",
+) {
   const cols: Column[] = columns ?? Object.keys(rows[0] ?? {}).map((k) => ({ key: k, label: k }));
-  const data = rows.map((r) => Object.fromEntries(cols.map((c) => {
-    const v = r[c.key];
-    const safe = v === null || v === undefined ? "" : (typeof v === "string" ? neutralizeFormula(v) : (typeof v === "object" ? neutralizeFormula(JSON.stringify(v)) : v));
-    return [c.label ?? c.key, safe];
-  })));
+  const data = rows.map((r) =>
+    Object.fromEntries(
+      cols.map((c) => {
+        const v = r[c.key];
+        const safe =
+          v === null || v === undefined
+            ? ""
+            : typeof v === "string"
+              ? neutralizeFormula(v)
+              : typeof v === "object"
+                ? neutralizeFormula(JSON.stringify(v))
+                : v;
+        return [c.label ?? c.key, safe];
+      }),
+    ),
+  );
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
@@ -52,24 +68,30 @@ export function exportPdf(opts: {
   const margin = 40;
   let y = margin;
   if (opts.title) {
-    doc.setFont("helvetica", "bold"); doc.setFontSize(16);
-    doc.text(opts.title, margin, y); y += 20;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text(opts.title, margin, y);
+    y += 20;
   }
   if (opts.subtitle) {
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
     doc.setTextColor(120);
-    doc.text(opts.subtitle, margin, y); y += 16;
+    doc.text(opts.subtitle, margin, y);
+    y += 16;
     doc.setTextColor(0);
   }
   autoTable(doc, {
     startY: y,
     head: [opts.columns.map((c) => c.label ?? c.key)],
-    body: opts.rows.map((r) => opts.columns.map((c) => {
-      const v = r[c.key];
-      if (v === null || v === undefined) return "";
-      if (v instanceof Date) return v.toLocaleString();
-      return typeof v === "object" ? JSON.stringify(v) : String(v);
-    })),
+    body: opts.rows.map((r) =>
+      opts.columns.map((c) => {
+        const v = r[c.key];
+        if (v === null || v === undefined) return "";
+        if (v instanceof Date) return v.toLocaleString();
+        return typeof v === "object" ? JSON.stringify(v) : String(v);
+      }),
+    ),
     styles: { fontSize: 8, cellPadding: 4 },
     headStyles: { fillColor: [15, 15, 15], textColor: 255 },
     alternateRowStyles: { fillColor: [245, 245, 245] },
@@ -97,19 +119,40 @@ export function printHtml(html: string, title = "Print") {
 
 export function printTable(title: string, rows: any[], columns: Column[]) {
   const head = columns.map((c) => `<th>${escapeHtml(c.label ?? c.key)}</th>`).join("");
-  const body = rows.map((r) => `<tr>${columns.map((c) => `<td>${escapeHtml(r[c.key])}</td>`).join("")}</tr>`).join("");
+  const body = rows
+    .map((r) => `<tr>${columns.map((c) => `<td>${escapeHtml(r[c.key])}</td>`).join("")}</tr>`)
+    .join("");
   const safeTitle = escapeHtml(title);
-  printHtml(`<h1>${safeTitle}</h1><div style="color:#666;font-size:11px">Generated ${escapeHtml(new Date().toLocaleString())}</div><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`, title);
+  printHtml(
+    `<h1>${safeTitle}</h1><div style="color:#666;font-size:11px">Generated ${escapeHtml(new Date().toLocaleString())}</div><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`,
+    title,
+  );
 }
 
 // Universal export menu action set
 export type ExportFormat = "csv" | "excel" | "pdf" | "print";
-export function exportData(format: ExportFormat, filename: string, rows: any[], columns: Column[], title?: string) {
+export function exportData(
+  format: ExportFormat,
+  filename: string,
+  rows: any[],
+  columns: Column[],
+  title?: string,
+) {
   switch (format) {
-    case "csv": return exportCsv(`${filename}.csv`, rows, columns);
-    case "excel": return exportExcel(filename, rows, columns);
-    case "pdf": return exportPdf({ filename, title: title ?? filename, rows, columns, orientation: columns.length > 6 ? "landscape" : "portrait" });
-    case "print": return printTable(title ?? filename, rows, columns);
+    case "csv":
+      return exportCsv(`${filename}.csv`, rows, columns);
+    case "excel":
+      return exportExcel(filename, rows, columns);
+    case "pdf":
+      return exportPdf({
+        filename,
+        title: title ?? filename,
+        rows,
+        columns,
+        orientation: columns.length > 6 ? "landscape" : "portrait",
+      });
+    case "print":
+      return printTable(title ?? filename, rows, columns);
   }
 }
 

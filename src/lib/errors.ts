@@ -17,23 +17,44 @@ const GENERIC: FriendlyMessage = {
 // Map well-known Postgres SQLSTATE codes / PostgREST errors to friendly copy.
 const CODE_MAP: Record<string, FriendlyMessage> = {
   "23505": { en: "This record already exists.", ar: "هذا السجل موجود بالفعل." },
-  "23503": { en: "Related record is missing or in use.", ar: "السجل المرتبط مفقود أو قيد الاستخدام." },
+  "23503": {
+    en: "Related record is missing or in use.",
+    ar: "السجل المرتبط مفقود أو قيد الاستخدام.",
+  },
   "23502": { en: "A required field is missing.", ar: "حقل مطلوب مفقود." },
-  "23514": { en: "Value doesn't meet the required rules.", ar: "القيمة لا تستوفي الشروط المطلوبة." },
+  "23514": {
+    en: "Value doesn't meet the required rules.",
+    ar: "القيمة لا تستوفي الشروط المطلوبة.",
+  },
   "22001": { en: "Value is too long.", ar: "القيمة طويلة جدًا." },
   "22P02": { en: "Invalid value format.", ar: "تنسيق القيمة غير صالح." },
   "42501": { en: "You don't have permission to do that.", ar: "ليست لديك صلاحية لهذا الإجراء." },
   "42P01": { en: "Resource not available.", ar: "المورد غير متاح." },
-  "PGRST116": { en: "Record not found.", ar: "السجل غير موجود." },
-  "PGRST301": { en: "Session expired. Please sign in again.", ar: "انتهت الجلسة. يُرجى تسجيل الدخول مرة أخرى." },
+  PGRST116: { en: "Record not found.", ar: "السجل غير موجود." },
+  PGRST301: {
+    en: "Session expired. Please sign in again.",
+    ar: "انتهت الجلسة. يُرجى تسجيل الدخول مرة أخرى.",
+  },
 };
 
 const AUTH_MAP: Record<string, FriendlyMessage> = {
-  "invalid_credentials": { en: "Wrong email or password.", ar: "البريد الإلكتروني أو كلمة المرور غير صحيحة." },
-  "email_not_confirmed": { en: "Please confirm your email first.", ar: "يُرجى تأكيد بريدك الإلكتروني أولاً." },
-  "user_already_exists": { en: "An account with this email already exists.", ar: "يوجد حساب بهذا البريد الإلكتروني بالفعل." },
-  "over_email_send_rate_limit": { en: "Too many attempts. Try again in a few minutes.", ar: "محاولات كثيرة. حاول بعد قليل." },
-  "weak_password": { en: "Password is too weak.", ar: "كلمة المرور ضعيفة." },
+  invalid_credentials: {
+    en: "Wrong email or password.",
+    ar: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+  },
+  email_not_confirmed: {
+    en: "Please confirm your email first.",
+    ar: "يُرجى تأكيد بريدك الإلكتروني أولاً.",
+  },
+  user_already_exists: {
+    en: "An account with this email already exists.",
+    ar: "يوجد حساب بهذا البريد الإلكتروني بالفعل.",
+  },
+  over_email_send_rate_limit: {
+    en: "Too many attempts. Try again in a few minutes.",
+    ar: "محاولات كثيرة. حاول بعد قليل.",
+  },
+  weak_password: { en: "Password is too weak.", ar: "كلمة المرور ضعيفة." },
 };
 
 function pick(msg: FriendlyMessage, locale: Locale) {
@@ -56,7 +77,8 @@ export function errorToMessage(err: unknown, locale: Locale = "en"): string {
 
   // Supabase Auth error
   if (typeof e.code === "string" && AUTH_MAP[e.code]) return pick(AUTH_MAP[e.code], locale);
-  if (typeof e.error_code === "string" && AUTH_MAP[e.error_code]) return pick(AUTH_MAP[e.error_code], locale);
+  if (typeof e.error_code === "string" && AUTH_MAP[e.error_code])
+    return pick(AUTH_MAP[e.error_code], locale);
 
   // Network / offline
   if (e.name === "TypeError" && /fetch|network/i.test(String(e.message))) {
@@ -72,17 +94,25 @@ export function errorToMessage(err: unknown, locale: Locale = "en"): string {
   // Status-code hints from thrown Response-like errors
   const status = e.status ?? e.statusCode;
   if (status === 401 || status === 403) {
-    return locale === "ar" ? "ليست لديك صلاحية لهذا الإجراء." : "You don't have permission to do that.";
+    return locale === "ar"
+      ? "ليست لديك صلاحية لهذا الإجراء."
+      : "You don't have permission to do that.";
   }
   if (status === 404) return locale === "ar" ? "غير موجود." : "Not found.";
-  if (status === 429) return locale === "ar" ? "محاولات كثيرة. حاول لاحقًا." : "Too many attempts. Please try again later.";
+  if (status === 429)
+    return locale === "ar"
+      ? "محاولات كثيرة. حاول لاحقًا."
+      : "Too many attempts. Please try again later.";
   if (typeof status === "number" && status >= 500) {
     return locale === "ar" ? "الخدمة غير متاحة مؤقتًا." : "Service temporarily unavailable.";
   }
 
   // Prefer .message when it looks human-friendly (short, no SQL noise)
   const raw = typeof e.message === "string" ? e.message : typeof err === "string" ? err : "";
-  const looksTechnical = /\b(select|insert|update|delete|from|where|violates|constraint|relation|schema|jwt|rls)\b/i.test(raw);
+  const looksTechnical =
+    /\b(select|insert|update|delete|from|where|violates|constraint|relation|schema|jwt|rls)\b/i.test(
+      raw,
+    );
   if (raw && !looksTechnical && raw.length < 200) return raw;
 
   return pick(GENERIC, locale);

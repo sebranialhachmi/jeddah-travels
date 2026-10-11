@@ -17,7 +17,9 @@ export function CookieConsent() {
   }, []);
 
   const set = (value: "all" | "essential") => {
-    try { localStorage.setItem(KEY, value); } catch {}
+    try {
+      localStorage.setItem(KEY, value);
+    } catch {}
     setVisible(false);
   };
 
@@ -29,7 +31,9 @@ export function CookieConsent() {
           <Cookie className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-display text-lg">{ar ? "نحن نستخدم ملفات تعريف الارتباط" : "We use cookies"}</div>
+          <div className="font-display text-lg">
+            {ar ? "نحن نستخدم ملفات تعريف الارتباط" : "We use cookies"}
+          </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {ar
               ? "لتحسين تجربتك وتحليل الأداء. يمكنك قبول الكل أو الاكتفاء بالضروري."
@@ -39,7 +43,12 @@ export function CookieConsent() {
             <Button size="sm" onClick={() => set("all")} className="rounded-full">
               {ar ? "قبول الكل" : "Accept all"}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => set("essential")} className="rounded-full">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => set("essential")}
+              className="rounded-full"
+            >
               {ar ? "الضروري فقط" : "Essential only"}
             </Button>
             <Button size="sm" variant="ghost" asChild className="rounded-full">
@@ -47,7 +56,11 @@ export function CookieConsent() {
             </Button>
           </div>
         </div>
-        <button aria-label="close" onClick={() => set("essential")} className="text-muted-foreground hover:text-foreground">
+        <button
+          aria-label="close"
+          onClick={() => set("essential")}
+          className="text-muted-foreground hover:text-foreground"
+        >
           <X className="h-4 w-4" />
         </button>
       </div>

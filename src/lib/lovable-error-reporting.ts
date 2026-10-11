@@ -11,7 +11,11 @@ type LovableErrorOptions = {
 };
 
 type LovableEvents = {
-  captureException?: (error: unknown, context?: Record<string, unknown>, options?: LovableErrorOptions) => void;
+  captureException?: (
+    error: unknown,
+    context?: Record<string, unknown>,
+    options?: LovableErrorOptions,
+  ) => void;
 };
 
 declare global {
@@ -40,7 +44,11 @@ async function persist(error: unknown, context: Record<string, unknown>, mechani
 
 export function reportLovableError(error: unknown, context: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
-  window.__lovableEvents?.captureException?.(error, { source: "react_error_boundary", route: window.location.pathname, ...context }, { mechanism: "react_error_boundary", handled: false, severity: "error" });
+  window.__lovableEvents?.captureException?.(
+    error,
+    { source: "react_error_boundary", route: window.location.pathname, ...context },
+    { mechanism: "react_error_boundary", handled: false, severity: "error" },
+  );
   void persist(error, context, "react_error_boundary");
 }
 
@@ -66,7 +74,11 @@ export function installGlobalErrorHandlers() {
   };
 
   window.addEventListener("error", (e) => {
-    void persist(e.error ?? e.message, { filename: e.filename, lineno: e.lineno, colno: e.colno }, "onerror");
+    void persist(
+      e.error ?? e.message,
+      { filename: e.filename, lineno: e.lineno, colno: e.colno },
+      "onerror",
+    );
   });
   window.addEventListener("unhandledrejection", (e) => {
     void persist(e.reason, {}, "unhandledrejection");

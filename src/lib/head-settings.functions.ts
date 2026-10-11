@@ -18,13 +18,17 @@ export const getPublicHeadSettings = createServerFn({ method: "GET" }).handler(a
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
     },
   });
-  const { data } = await client.from("settings").select("key,value").in("key", HEAD_KEYS as any);
+  const { data } = await client
+    .from("settings")
+    .select("key,value")
+    .in("key", HEAD_KEYS as any);
   const out: Record<string, string> = {};
   (data ?? []).forEach((r: any) => {
     const v = typeof r.value === "string" ? r.value : (r.value?.value ?? "");

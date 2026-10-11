@@ -10,7 +10,9 @@ import { toast } from "sonner";
 import { Save } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/admin/homepage")({ component: HomepageAdmin });
+export const Route = createFileRoute("/_authenticated/admin/homepage")({
+  component: HomepageAdmin,
+});
 
 function HomepageAdmin() {
   const { locale } = useI18n();
@@ -18,11 +20,15 @@ function HomepageAdmin() {
   const qc = useQueryClient();
   const q = useQuery({
     queryKey: ["homepage-sections"],
-    queryFn: async () => (await supabase.from("homepage_sections").select("*").order("sort_order")).data ?? [],
+    queryFn: async () =>
+      (await supabase.from("homepage_sections").select("*").order("sort_order")).data ?? [],
   });
 
   const saveSection = async (id: string, patch: Record<string, any>) => {
-    const { error } = await supabase.from("homepage_sections").update(patch as any).eq("id", id);
+    const { error } = await supabase
+      .from("homepage_sections")
+      .update(patch as any)
+      .eq("id", id);
     if (error) return toast.error(error.message);
     toast.success(ar ? "تم الحفظ" : "Saved");
     qc.invalidateQueries({ queryKey: ["homepage-sections"] });
@@ -30,7 +36,14 @@ function HomepageAdmin() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={ar ? "أقسام الصفحة الرئيسية" : "Homepage Sections"} description={ar ? "تفعيل وترتيب وتسمية الأقسام الظاهرة في الصفحة الرئيسية" : "Toggle, reorder, and label the sections that appear on the public homepage."} />
+      <PageHeader
+        title={ar ? "أقسام الصفحة الرئيسية" : "Homepage Sections"}
+        description={
+          ar
+            ? "تفعيل وترتيب وتسمية الأقسام الظاهرة في الصفحة الرئيسية"
+            : "Toggle, reorder, and label the sections that appear on the public homepage."
+        }
+      />
       <div className="grid gap-3">
         {(q.data ?? []).map((s: any) => (
           <Card key={s.id} className="rounded-2xl">
@@ -51,7 +64,9 @@ function HomepageAdmin() {
                 className="grid gap-3 md:grid-cols-6 items-end"
               >
                 <div className="md:col-span-1">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{ar ? "المفتاح" : "Key"}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {ar ? "المفتاح" : "Key"}
+                  </div>
                   <div className="font-mono text-sm mt-1">{s.section_key}</div>
                 </div>
                 <div className="md:col-span-1">
@@ -63,7 +78,9 @@ function HomepageAdmin() {
                   <Input name="title_ar" defaultValue={s.title_ar ?? ""} dir="rtl" />
                 </div>
                 <div className="md:col-span-1">
-                  <label className="text-xs">{ar ? "العنوان الفرعي (إنجليزي)" : "Subtitle (EN)"}</label>
+                  <label className="text-xs">
+                    {ar ? "العنوان الفرعي (إنجليزي)" : "Subtitle (EN)"}
+                  </label>
                   <Input name="subtitle_en" defaultValue={s.subtitle_en ?? ""} />
                 </div>
                 <div className="md:col-span-1">
@@ -77,9 +94,13 @@ function HomepageAdmin() {
                       defaultChecked={s.enabled}
                       onCheckedChange={(v) => saveSection(s.id, { enabled: v })}
                     />
-                    <span className="text-xs">{s.enabled ? (ar ? "مفعّل" : "On") : (ar ? "معطّل" : "Off")}</span>
+                    <span className="text-xs">
+                      {s.enabled ? (ar ? "مفعّل" : "On") : ar ? "معطّل" : "Off"}
+                    </span>
                   </label>
-                  <Button type="submit" size="icon" variant="ghost" title={ar ? "حفظ" : "Save"}><Save className="h-4 w-4" /></Button>
+                  <Button type="submit" size="icon" variant="ghost" title={ar ? "حفظ" : "Save"}>
+                    <Save className="h-4 w-4" />
+                  </Button>
                 </div>
               </form>
             </CardContent>

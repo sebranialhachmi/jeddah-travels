@@ -1,6 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  Outlet, createRootRouteWithContext, useRouter, useRouterState, HeadContent, Scripts,
+  Outlet,
+  createRootRouteWithContext,
+  useRouter,
+  useRouterState,
+  HeadContent,
+  Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { localeFromPath, DEFAULT_LOCALE } from "@/lib/i18n";
@@ -43,14 +48,18 @@ function extraHeadMeta(settings: Record<string, string>) {
   return meta;
 }
 
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold">404</h1>
         <p className="mt-2 text-muted-foreground">الصفحة غير موجودة / Page not found</p>
-        <a href="/" className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Home</a>
+        <a
+          href="/"
+          className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        >
+          Home
+        </a>
       </div>
     </div>
   );
@@ -58,7 +67,10 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: { error: any; reset: () => void }) {
   const router = useRouter();
-  useEffect(() => { console.error(error); reportLovableError(error, { boundary: "root" }); }, [error]);
+  useEffect(() => {
+    console.error(error);
+    reportLovableError(error, { boundary: "root" });
+  }, [error]);
   const friendly = errorToMessage(error);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -66,8 +78,18 @@ function ErrorComponent({ error, reset }: { error: any; reset: () => void }) {
         <h1 className="text-xl font-semibold">حدث خطأ / Something went wrong</h1>
         <p className="mt-2 text-sm text-muted-foreground">{friendly}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button onClick={() => { router.invalidate(); reset(); }} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Try again</button>
-          <a href="/" className="rounded-md border px-4 py-2 text-sm font-medium">Home</a>
+          <button
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          >
+            Try again
+          </button>
+          <a href="/" className="rounded-md border px-4 py-2 text-sm font-medium">
+            Home
+          </a>
         </div>
       </div>
     </div>
@@ -83,12 +105,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     }
   },
   head: ({ loaderData, matches }) => {
-    // Determine the title based on the route hierarchy: 
-    // Child routes should have passed their titles up if possible, 
+    // Determine the title based on the route hierarchy:
+    // Child routes should have passed their titles up if possible,
     // or we fall back to a safe site default.
     const lastMatch = matches[matches.length - 1];
     const routeTitle = (lastMatch?.meta as any)?.find((m: any) => m.title)?.title;
-    
+
     // Fallback: If no page-specific title, provide a sensible default.
     const defaultTitle = `${SITE.brand.en} | ${SITE.brand.ar}`;
     const effectiveTitle = routeTitle || defaultTitle;
@@ -105,8 +127,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: effectiveTitle },
-        { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/yTgJBA4SfjVCi3apFH5XARkLEQi1/social-images/social-1783936969962-Gemini_Generated_Image_9nz6uv9nz6uv9nz6-removebg-preview.webp" },
-        { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/yTgJBA4SfjVCi3apFH5XARkLEQi1/social-images/social-1783936969962-Gemini_Generated_Image_9nz6uv9nz6uv9nz6-removebg-preview.webp" },
+        {
+          property: "og:image",
+          content:
+            "https://storage.googleapis.com/gpt-engineer-file-uploads/yTgJBA4SfjVCi3apFH5XARkLEQi1/social-images/social-1783936969962-Gemini_Generated_Image_9nz6uv9nz6uv9nz6-removebg-preview.webp",
+        },
+        {
+          name: "twitter:image",
+          content:
+            "https://storage.googleapis.com/gpt-engineer-file-uploads/yTgJBA4SfjVCi3apFH5XARkLEQi1/social-images/social-1783936969962-Gemini_Generated_Image_9nz6uv9nz6uv9nz6-removebg-preview.webp",
+        },
       ],
       links: [
         { rel: "stylesheet", href: appCss },
@@ -131,15 +161,22 @@ function RootShell({ children }: { children: ReactNode }) {
   const dir = locale === "ar" ? "rtl" : "ltr";
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
-      <head><HeadContent /></head>
-      <body className="hydrated">{children}<Scripts /></body>
+      <head>
+        <HeadContent />
+      </head>
+      <body className="hydrated">
+        {children}
+        <Scripts />
+      </body>
     </html>
   );
 }
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => { installGlobalErrorHandlers(); }, []);
+  useEffect(() => {
+    installGlobalErrorHandlers();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

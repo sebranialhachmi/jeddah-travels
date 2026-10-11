@@ -11,8 +11,11 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
     handlers: {
       GET: async () => {
         const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!);
-        const { data: pages } = await sb.from("cms_pages").select("slug,page_type,updated_at").eq("published", true);
-        
+        const { data: pages } = await sb
+          .from("cms_pages")
+          .select("slug,page_type,updated_at")
+          .eq("published", true);
+
         const typeToPrefix: Record<string, string> = {
           service: "/services",
           city: "/cities",
@@ -38,13 +41,18 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
         ];
 
         const urls: string[] = [];
-        
+
         // Add static localized pages
         for (const path of staticPaths) {
           for (const lang of LOCALES) {
             const loc = `${BASE_URL}/${lang}${path}`;
-            const alternates = LOCALES.map(l => `    <xhtml:link rel="alternate" hreflang="${l}" href="${BASE_URL}/${l}${path}" />`).join("\n");
-            urls.push(`  <url>\n    <loc>${loc}</loc>\n${alternates}\n    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}/ar${path}" />\n  </url>`);
+            const alternates = LOCALES.map(
+              (l) =>
+                `    <xhtml:link rel="alternate" hreflang="${l}" href="${BASE_URL}/${l}${path}" />`,
+            ).join("\n");
+            urls.push(
+              `  <url>\n    <loc>${loc}</loc>\n${alternates}\n    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}/ar${path}" />\n  </url>`,
+            );
           }
         }
 
@@ -52,7 +60,9 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
           const prefix = typeToPrefix[p.page_type as string] ?? "/p";
           if (isConsolidatedDuplicate(`${prefix}/${p.slug}`)) continue;
           for (const lang of LOCALES) {
-            urls.push(`  <url>\n    <loc>${BASE_URL}/${lang}${prefix}/${p.slug}</loc>\n    <lastmod>${p.updated_at?.slice(0, 10)}</lastmod>\n  </url>`);
+            urls.push(
+              `  <url>\n    <loc>${BASE_URL}/${lang}${prefix}/${p.slug}</loc>\n    <lastmod>${p.updated_at?.slice(0, 10)}</lastmod>\n  </url>`,
+            );
           }
         }
 
@@ -64,7 +74,12 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
           `</urlset>`,
         ].join("\n");
 
-        return new Response(xml, { headers: { "Content-Type": "application/xml; charset=utf-8", "X-Content-Type-Options": "nosniff" } });
+        return new Response(xml, {
+          headers: {
+            "Content-Type": "application/xml; charset=utf-8",
+            "X-Content-Type-Options": "nosniff",
+          },
+        });
       },
     },
   },

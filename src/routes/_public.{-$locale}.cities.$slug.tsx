@@ -23,7 +23,8 @@ const opts = (slug: string) =>
 export const Route = createFileRoute("/_public/{-$locale}/cities/$slug")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(opts(params.slug)),
   head: ({ loaderData, params }) => {
-    if (!loaderData) return { meta: [{ title: "Not found" }, { name: "robots", content: "noindex" }] };
+    if (!loaderData)
+      return { meta: [{ title: "Not found" }, { name: "robots", content: "noindex" }] };
     const p: any = loaderData.page;
     const head = buildCmsHead(p);
     const locale = params.locale ?? "ar";
@@ -38,7 +39,11 @@ export const Route = createFileRoute("/_public/{-$locale}/cities/$slug")({
           name: p.title_en,
           description: p.subtitle_en ?? undefined,
           image: p.hero_image_url ?? undefined,
-          address: { "@type": "PostalAddress", addressCountry: SITE.country, addressLocality: p.title_en },
+          address: {
+            "@type": "PostalAddress",
+            addressCountry: SITE.country,
+            addressLocality: p.title_en,
+          },
           url,
         }),
       },
