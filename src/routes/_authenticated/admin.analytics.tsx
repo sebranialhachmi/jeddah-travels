@@ -117,9 +117,6 @@ function Analytics() {
     enabled: gate.allowed,
   });
 
-  if (!gate.loading && !gate.allowed)
-    return <div className="p-8 text-center text-muted-foreground">Not authorized</div>;
-
   const rows = bookings.data ?? [];
   const kpi = useMemo(() => computeKPIs(rows), [rows]);
   const dailyKpi = useMemo(
@@ -211,6 +208,13 @@ function Analytics() {
     (customers.data ?? []).reduce((s: number, c: any) => s + num(c.total_spent), 0) /
     Math.max(1, (customers.data ?? []).length);
   const fmt = (n: number) => money(locale, n);
+
+  // The permission guard must come after every hook above: returning earlier
+  // changes the number of hooks rendered between loading and denied states.
+  // Queries are disabled while not allowed, so the derived values above are
+  // computed from empty data and have no side effects.
+  if (!gate.loading && !gate.allowed)
+    return <div className="p-8 text-center text-muted-foreground">Not authorized</div>;
 
   return (
     <div>
